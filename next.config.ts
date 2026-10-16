@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost", port: "4000", pathname: "/**" },
       { protocol: "https", hostname: "nusadhipa.shop", pathname: "/**" },
       { protocol: "https", hostname: "www.nusadhipa.shop", pathname: "/**" },
+      { protocol: "https", hostname: "api.nusadhipa.shop", pathname: "/**" },
     ],
   },
   async headers() {
@@ -19,11 +20,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "img-src 'self' data: blob: http://127.0.0.1:4000 http://localhost:4000 https://nusadhipa.shop",
+              "img-src 'self' data: blob: http://127.0.0.1:4000 http://localhost:4000 https://nusadhipa.shop https://api.nusadhipa.shop",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
-              "connect-src 'self' http://127.0.0.1:4000 http://localhost:4000 ws://localhost:3004 ws://127.0.0.1:3004",
+              "connect-src 'self' http://127.0.0.1:4000 http://localhost:4000 ws://localhost:3004 ws://127.0.0.1:3004 https://api.nusadhipa.shop wss://api.nusadhipa.shop https://nusadhipa.shop",
               "frame-src 'self'",
             ].join("; "),
           },
