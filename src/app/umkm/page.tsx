@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "@/components/home/Reveal";
-import { getProducts, getBusinessInfo, type Product, type BusinessInfo } from "@/lib/marketplace-api";
+import { getProducts, getBusinesses, type Product, type BusinessInfo } from "@/lib/marketplace-api";
 
 export const dynamic = "force-dynamic";
 
@@ -217,19 +217,19 @@ export default async function UmkmPage({ searchParams }: PageProps) {
 
   let products: Product[] = [];
   let productsError = false;
-  let business: BusinessInfo | null = null;
+  let businesses: BusinessInfo[] = [];
 
-  // Fetch business info + products paralel
-  const [businessResult, productsResult] = await Promise.allSettled([
-    getBusinessInfo(),
+  // Fetch businesses + products paralel
+  const [businessesResult, productsResult] = await Promise.allSettled([
+    getBusinesses(),
     getProducts({
       q: query || undefined,
       limit: 100,
     }),
   ]);
 
-  if (businessResult.status === "fulfilled") {
-    business = businessResult.value;
+  if (businessesResult.status === "fulfilled") {
+    businesses = businessesResult.value;
   }
 
   if (productsResult.status === "fulfilled") {
@@ -239,12 +239,14 @@ export default async function UmkmPage({ searchParams }: PageProps) {
   }
 
   // Build sellers + pass logo URL (kalau 1 bisnis)
-  const sellers = buildSellers(products).map((s) => ({
-    ...s,
-    logoUrl: business?.logo_url
-      ? resolveImageUrl(business.logo_url)
-      : undefined,
-  }));
+  const businessesBySlug = new Map(businesses.map((b) => [b.slug, b]));
+  const sellers = buildSellers(products).map((s) => {
+    const biz = businessesBySlug.get(s.slug);
+    return {
+      ...s,
+      logoUrl: biz?.logo_url ? resolveImageUrl(biz.logo_url) : undefined,
+    };
+  });
   const totalSellers = sellers.length;
   const totalProducts = products.length;
 

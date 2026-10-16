@@ -184,6 +184,24 @@ export async function getBusinessInfo(): Promise<BusinessInfo | null> {
  * Ambil business detail publik by slug (public endpoint).
  * Endpoint: GET /businesses/:slug
  */
+/**
+ * Ambil list semua business aktif (public endpoint).
+ * Endpoint: GET /businesses
+ */
+export async function getBusinesses(): Promise<BusinessInfo[]> {
+  try {
+    const response = await fetch(`${API_BASE}/businesses`, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) return [];
+    const json = await response.json();
+    return Array.isArray(json?.data) ? (json.data as BusinessInfo[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getBusinessBySlug(
   slug: string
 ): Promise<BusinessInfo | null> {
