@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Reveal } from "@/components/home/Reveal";
 import {
-  getBusinessInfo,
+  getBusinessBySlug,
   getProducts,
   formatRupiah,
   type Product,
@@ -98,7 +98,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
   const { slug } = await params;
 
   const [businessResult, productsResult] = await Promise.allSettled([
-    getBusinessInfo(),
+    getBusinessBySlug(slug),
     getProducts({ limit: 100 }),
   ]);
 
@@ -120,7 +120,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
   const logoUrl = resolveImageUrl(business?.logo_url);
   const isVerified = business?.verification_status === "verified";
 
-  if (business && business.slug !== slug) {
+  if (!business || business.slug !== slug) {
     return (
       <main className="nd-store-profile">
         <div className="nd-store-empty-page">

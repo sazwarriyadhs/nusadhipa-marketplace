@@ -180,6 +180,36 @@ export async function getBusinessInfo(): Promise<BusinessInfo | null> {
   }
 }
 
+/**
+ * Ambil business detail publik by slug (public endpoint).
+ * Endpoint: GET /businesses/:slug
+ */
+export async function getBusinessBySlug(
+  slug: string
+): Promise<BusinessInfo | null> {
+  try {
+    const response = await fetch(
+      `${API_BASE}/businesses/${encodeURIComponent(slug)}`,
+      {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const json = await response.json();
+    if (json?.success && json?.data) {
+      return json.data as BusinessInfo;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function formatRupiah(value: string | number): string {
   const amount = Number(value);
   if (!Number.isFinite(amount)) return "Harga belum tersedia";
