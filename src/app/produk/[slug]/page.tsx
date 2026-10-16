@@ -5,19 +5,13 @@ import ProductAddToCart from "@/components/cart/ProductAddToCart";
 const API_BASE = (
   process.env.NEXT_PUBLIC_MARKETPLACE_API_URL ||
   process.env.MARKETPLACE_API_URL ||
-  "http://127.0.0.1:4000/api/v1"
+  "https://api.nusadhipa.shop/api/v1"
 ).replace(/\/api\/v1\/?$/, "");
 
 function resolveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (
-    url.startsWith("/sauri/") ||
-    url.startsWith("/images/") ||
-    url.startsWith("/data/")
-  ) {
-    return url;
-  }
+
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 import { getProduct, formatRupiah } from "@/lib/marketplace-api";
