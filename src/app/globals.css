@@ -5893,3 +5893,140 @@ body {
   color: #b91c2c;
   letter-spacing: -0.3px;
 }
+
+/* ============================================================
+   WOW Enhancement — Seller Card (brand red, modern)
+   ============================================================ */
+
+/* Grid: 3 kolom dengan auto-fit responsive */
+.nd-marketplace .nd-seller-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Card: gradient subtle + top accent */
+.nd-marketplace .nd-seller-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 22px 20px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #fffafa 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Top accent line — gradient merah (muncul saat hover) */
+.nd-marketplace .nd-seller-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--nd-red) 0%, var(--nd-red-dark) 50%, #FFB800 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.nd-marketplace .nd-seller-card:hover::before {
+  opacity: 1;
+}
+
+.nd-marketplace .nd-seller-card:hover {
+  transform: translateY(-6px);
+  border-color: rgb(229 35 46 / 40%);
+  box-shadow: 0 20px 40px rgb(229 35 46 / 15%);
+}
+
+/* Avatar: 64px, rounded 16px, shadow merah */
+.nd-marketplace .nd-seller-avatar {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  font-size: 20px;
+  box-shadow: 0 8px 20px rgb(229 35 46 / 25%);
+  transition: transform 0.3s;
+}
+
+.nd-marketplace .nd-seller-card:hover .nd-seller-avatar {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+.nd-marketplace .nd-seller-avatar--image {
+  background: #fff;
+  padding: 8px;
+  border: 2px solid rgb(229 35 46 / 10%);
+}
+
+/* Title: 17px, bold */
+.nd-marketplace .nd-seller-card__title h3 {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+/* Badge: gradient hijau */
+.nd-marketplace .nd-seller-card__badge {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: 1px solid rgba(34, 163, 83, 0.2);
+  box-shadow: 0 2px 6px rgba(34, 163, 83, 0.08);
+}
+
+/* Stats: gradient text merah */
+.nd-marketplace .nd-seller-card__stats {
+  padding: 16px 0;
+  margin: 4px 0 16px;
+}
+
+.nd-marketplace .nd-seller-card__stats dd {
+  font-size: 26px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--nd-red) 0%, var(--nd-red-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.nd-marketplace .nd-seller-card__stats dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+/* Tag: subtle border + hover */
+.nd-marketplace .nd-seller-tag {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.nd-marketplace .nd-seller-tag:hover {
+  border-color: rgb(229 35 46 / 30%);
+  background: #fff;
+}
+
+.nd-marketplace .nd-seller-tag--more {
+  background: linear-gradient(135deg, #fff 0%, #fffafa 100%);
+  border-color: rgb(229 35 46 / 40%);
+  color: var(--nd-red);
+  font-weight: 800;
+}
+
+/* CTA: gradient merah + shadow + scale */
+.nd-marketplace .nd-seller-card__cta {
+  padding: 13px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--nd-red) 0%, var(--nd-red-dark) 100%);
+  font-weight: 750;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgb(229 35 46 / 20%);
+}
+
+.nd-marketplace .nd-seller-card__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgb(229 35 46 / 35%);
+  filter: brightness(1.05);
+}
