@@ -239,14 +239,27 @@ export default async function UmkmPage({ searchParams }: PageProps) {
   }
 
   // Build sellers + pass logo URL (kalau 1 bisnis)
-  const businessesBySlug = new Map(businesses.map((b) => [b.slug, b]));
-  const sellers = buildSellers(products).map((s) => {
-    const biz = businessesBySlug.get(s.slug);
-    return {
-      ...s,
-      logoUrl: biz?.logo_url ? resolveImageUrl(biz.logo_url) : undefined,
-    };
-  });
+  const sellers = businesses
+    .map((biz) => {
+      const bizProducts = products.filter((p) => p.business_slug === biz.slug);
+      const categories = new Set<string>();
+      bizProducts.forEach((p) => {
+        if (p.category_name) categories.add(p.category_name);
+      });
+
+      const sampleProduct = bizProducts[0];
+
+      return {
+        name: biz.business_name,
+        slug: biz.slug,
+        productCount: bizProducts.length,
+        categories,
+        sampleSlug: sampleProduct?.slug,
+        sampleImage: sampleProduct?.image_url ?? undefined,
+        logoUrl: biz.logo_url ? resolveImageUrl(biz.logo_url) : undefined,
+      };
+    })
+    .sort((a, b) => b.productCount - a.productCount);
   const totalSellers = sellers.length;
   const totalProducts = products.length;
 
