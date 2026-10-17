@@ -49,38 +49,39 @@ function extractApiList<T>(response: unknown): T[] {
   return [];
 }
 
-const categoryVisuals: Record<string, { icon: string; label: string }> = {
-  "makanan-minuman": { icon: "🍱", label: "Makanan & Minuman" },
-  "pertanian-peternakan": { icon: "🌾", label: "Pertanian & Peternakan" },
-  "hewan-peliharaan": { icon: "🐾", label: "Hewan Peliharaan" },
-  "fashion-aksesori": { icon: "👕", label: "Fashion & Aksesori" },
-  "rumah-perlengkapan": { icon: "🏠", label: "Rumah & Perlengkapan" },
-  "kesehatan-kecantikan": { icon: "✨", label: "Kesehatan & Kecantikan" },
-  "elektronik-digital": { icon: "💻", label: "Elektronik & Digital" },
-  "jasa-layanan": { icon: "🛠️", label: "Jasa & Layanan" },
-  ayam: { icon: "🐓", label: "Ayam" },
-  unggas: { icon: "🐓", label: "Ayam & Unggas" },
-  ikan: { icon: "🐟", label: "Ikan" },
-  petfood: { icon: "🐾", label: "Petfood" },
-  "pakan-hewan": { icon: "🐾", label: "Petfood" },
-  daging: { icon: "🥩", label: "Daging" },
-  frozen: { icon: "❄️", label: "Frozen Food" },
-  "frozen-food": { icon: "❄️", label: "Frozen Food" },
-  bumbu: { icon: "🌿", label: "Bumbu" },
+const categoryVisuals: Record<string, { image: string; label: string }> = {
+  "makanan-minuman": { image: "/kategori/01-makanan-minuman.png", label: "Makanan & Minuman" },
+  "pertanian-hasil-bumi": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi" },
+  "peternakan-daging-perikanan": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan" },
+  "petfood-kebutuhan-hewan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan" },
+  "fashion-aksesori": { image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori" },
+  "kerajinan-produk-kreatif": { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif" },
+  "rumah-tangga-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan" },
+  "kecantikan-perawatan-diri": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri" },
+  "tanaman-bunga-florist": { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist" },
+  "elektronik-peralatan": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan" },
+  "jasa-layanan-bisnis": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis" },
+  "industri-grosir-b2b": { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B" },
+  // Fallback
+  ayam: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ayam" },
+  ikan: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ikan" },
+  petfood: { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood" },
+  daging: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Daging" },
 };
 
 function getCategoryVisual(category: Category) {
-  const key = `${category.slug ?? ""} ${category.name ?? ""}`.toLowerCase();
-  const match = Object.entries(categoryVisuals).find(([needle]) =>
-    key.includes(needle),
-  );
+  const slug = (category.slug ?? "").toLowerCase().trim();
+  const exact = categoryVisuals[slug];
+  if (exact) return exact;
 
-  return (
-    match?.[1] ?? {
-      icon: "🛍️",
-      label: category.name || "Lainnya",
-    }
-  );
+  const name = (category.name ?? "").toLowerCase().trim();
+  const fallback = categoryVisuals[name];
+  if (fallback) return fallback;
+
+  return {
+    image: "/kategori/01-makanan-minuman.png",
+    label: category.name || "Lainnya",
+  };
 }
 
 /* ---------- Components ---------- */
@@ -371,10 +372,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
                         category: category.slug ?? "",
                         page: 1,
                       })}
-                      className={`nd-chip${isActive ? " is-active" : ""}`}
+                      className={`nd-chip nd-chip--with-image${isActive ? " is-active" : ""}`}
                     >
-                      <span aria-hidden="true">{visual.icon}</span>{" "}
-                      {visual.label}
+                      <img
+                        src={visual.image}
+                        alt=""
+                        className="nd-chip__icon"
+                        width={20}
+                        height={20}
+                        loading="lazy"
+                      />
+                      <span>{visual.label}</span>
                     </Link>
                   );
                 })}
