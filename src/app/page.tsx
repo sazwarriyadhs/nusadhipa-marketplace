@@ -333,7 +333,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                           category.slug ?? "",
                         )}`}
                       >
-                        <span aria-hidden="true">{visual.icon}</span>
+                        <span aria-hidden="true">🛍️</span>
                         {visual.label}
                       </Link>
                     );
