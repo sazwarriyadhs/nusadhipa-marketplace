@@ -51,16 +51,16 @@ function extractApiList<T>(response: unknown): T[] {
 
 const categoryVisuals: Record<string, { image: string; label: string; num: number }> = {
   "makanan-minuman": { image: "/kategori/01-makanan-minuman.png", label: "Makanan & Minuman", num: 1 },
-  "pertanian-peternakan": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi", num: 2 },
+  "pertanian-hasil-bumi": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi", num: 2 },
   "peternakan-daging-perikanan": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan", num: 3 },
-  "hewan-peliharaan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan", num: 4 },
+  "petfood-kebutuhan-hewan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan", num: 4 },
   "fashion-aksesori": { image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori", num: 5 },
   "kerajinan-produk-kreatif": { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif", num: 6 },
-  "rumah-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan", num: 7 },
-  "kesehatan-kecantikan": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri", num: 8 },
+  "rumah-tangga-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan", num: 7 },
+  "kecantikan-perawatan-diri": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri", num: 8 },
   "tanaman-bunga-florist": { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist", num: 9 },
-  "elektronik-digital": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan", num: 10 },
-  "jasa-layanan": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis", num: 11 },
+  "elektronik-peralatan": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan", num: 10 },
+  "jasa-layanan-bisnis": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis", num: 11 },
   "industri-grosir-b2b": { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B", num: 12 },
 
   // Fallback (icon emoji kalau gambar nggak ketemu)
@@ -72,18 +72,19 @@ const categoryVisuals: Record<string, { image: string; label: string; num: numbe
 };
 
 function getCategoryVisual(category: Category) {
-  const key = `${category.slug ?? ""} ${category.name ?? ""}`.toLowerCase();
-  const match = Object.entries(categoryVisuals).find(([needle]) =>
-    key.includes(needle),
-  );
+  const slug = (category.slug ?? "").toLowerCase().trim();
+  const exact = categoryVisuals[slug];
+  if (exact) return exact;
 
-  return (
-    match?.[1] ?? {
-      image: "/kategori/01-makanan-minuman.png",
-      label: category.name || "Lainnya",
-      num: 0,
-    }
-  );
+  const name = (category.name ?? "").toLowerCase().trim();
+  const fallback = categoryVisuals[name];
+  if (fallback) return fallback;
+
+  return {
+    image: "/kategori/01-makanan-minuman.png",
+    label: category.name || "Lainnya",
+    num: 0,
+  };
 }
 
 /* ---------- Fallback kategori (module scope, bukan re-create tiap render) ---------- */
