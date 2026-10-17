@@ -49,25 +49,26 @@ function extractApiList<T>(response: unknown): T[] {
 
 /* ---------- Kategori visual ---------- */
 
-const categoryVisuals: Record<string, { icon: string; label: string }> = {
-  "makanan-minuman": { icon: "🍱", label: "Makanan & Minuman" },
-  "pertanian-peternakan": { icon: "🌾", label: "Pertanian & Peternakan" },
-  "hewan-peliharaan": { icon: "🐾", label: "Hewan Peliharaan" },
-  "fashion-aksesori": { icon: "👕", label: "Fashion & Aksesori" },
-  "rumah-perlengkapan": { icon: "🏠", label: "Rumah & Perlengkapan" },
-  "kesehatan-kecantikan": { icon: "✨", label: "Kesehatan & Kecantikan" },
-  "elektronik-digital": { icon: "💻", label: "Elektronik & Digital" },
-  "jasa-layanan": { icon: "🛠️", label: "Jasa & Layanan" },
+const categoryVisuals: Record<string, { image: string; label: string; num: number }> = {
+  "makanan-minuman": { image: "/kategori/01-makanan-minuman.png", label: "Makanan & Minuman", num: 1 },
+  "pertanian-peternakan": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi", num: 2 },
+  "peternakan-daging-perikanan": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan", num: 3 },
+  "hewan-peliharaan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan", num: 4 },
+  "fashion-aksesori": { image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori", num: 5 },
+  "kerajinan-produk-kreatif": { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif", num: 6 },
+  "rumah-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan", num: 7 },
+  "kesehatan-kecantikan": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri", num: 8 },
+  "tanaman-bunga-florist": { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist", num: 9 },
+  "elektronik-digital": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan", num: 10 },
+  "jasa-layanan": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis", num: 11 },
+  "industri-grosir-b2b": { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B", num: 12 },
 
-  ayam: { icon: "🐓", label: "Ayam" },
-  unggas: { icon: "🐓", label: "Ayam & Unggas" },
-  ikan: { icon: "🐟", label: "Ikan" },
-  petfood: { icon: "🐾", label: "Petfood" },
-  "pakan-hewan": { icon: "🐾", label: "Petfood" },
-  daging: { icon: "🥩", label: "Daging" },
-  frozen: { icon: "❄️", label: "Frozen Food" },
-  "frozen-food": { icon: "❄️", label: "Frozen Food" },
-  bumbu: { icon: "🌿", label: "Bumbu" },
+  // Fallback (icon emoji kalau gambar nggak ketemu)
+  ayam: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ayam", num: 3 },
+  unggas: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ayam & Unggas", num: 3 },
+  ikan: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ikan", num: 3 },
+  daging: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Daging", num: 3 },
+  petfood: { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood", num: 4 },
 };
 
 function getCategoryVisual(category: Category) {
@@ -78,8 +79,9 @@ function getCategoryVisual(category: Category) {
 
   return (
     match?.[1] ?? {
-      icon: "🛍️",
+      image: "/kategori/01-makanan-minuman.png",
       label: category.name || "Lainnya",
+      num: 0,
     }
   );
 }
@@ -87,12 +89,18 @@ function getCategoryVisual(category: Category) {
 /* ---------- Fallback kategori (module scope, bukan re-create tiap render) ---------- */
 
 const fallbackCategories = [
-  { slug: "ayam", icon: "🐓", label: "Ayam" },
-  { slug: "ikan", icon: "🐟", label: "Ikan" },
-  { slug: "petfood", icon: "🐾", label: "Petfood" },
-  { slug: "daging", icon: "🥩", label: "Daging" },
-  { slug: "frozen", icon: "❄️", label: "Frozen" },
-  { slug: "bumbu", icon: "🌿", label: "Bumbu" },
+  { slug: "makanan-minuman", image: "/kategori/01-makanan-minuman.png", label: "Makanan & Minuman" },
+  { slug: "pertanian-hasil-bumi", image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi" },
+  { slug: "peternakan-daging-perikanan", image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan" },
+  { slug: "petfood-kebutuhan-hewan", image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan" },
+  { slug: "fashion-aksesori", image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori" },
+  { slug: "kerajinan-produk-kreatif", image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif" },
+  { slug: "rumah-tangga-perlengkapan", image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan" },
+  { slug: "kecantikan-perawatan-diri", image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri" },
+  { slug: "tanaman-bunga-florist", image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist" },
+  { slug: "elektronik-peralatan", image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan" },
+  { slug: "jasa-layanan-bisnis", image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis" },
+  { slug: "industri-grosir-b2b", image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B" },
 ] as const;
 
 /* ---------- Sub-components ---------- */
@@ -337,7 +345,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                         category.slug,
                       )}`}
                     >
-                      <span aria-hidden="true">{category.icon}</span>
+                      <span aria-hidden="true">🛍️</span>
                       {category.label}
                     </Link>
                   ))}
@@ -386,12 +394,13 @@ export default async function HomePage({ searchParams }: PageProps) {
                       )}`}
                       className="nd-cat-card"
                     >
-                      <span
-                        className="nd-cat-card__icon"
-                        aria-hidden="true"
-                      >
-                        {visual.icon}
-                      </span>
+                      <span className="nd-cat-card__num">{visual.num}</span>
+                      <img
+                        src={visual.image}
+                        alt={visual.label}
+                        className="nd-cat-card__image"
+                        loading="lazy"
+                      />
                       <strong>{visual.label}</strong>
                       <small>Lihat produk</small>
                     </Link>
@@ -425,9 +434,15 @@ export default async function HomePage({ searchParams }: PageProps) {
                     )}`}
                     className="nd-cat-card"
                   >
-                    <span className="nd-cat-card__icon" aria-hidden="true">
-                      {category.icon}
+                    <span className="nd-cat-card__num">
+                      {fallbackCategories.findIndex(c => c.slug === category.slug) + 1}
                     </span>
+                    <img
+                      src={category.image || "/kategori/01-makanan-minuman.png"}
+                      alt={category.label}
+                      className="nd-cat-card__image"
+                      loading="lazy"
+                    />
                     <strong>{category.label}</strong>
                     <small>Lihat produk</small>
                   </Link>
