@@ -151,13 +151,42 @@ function ProductCard({ product }: { product: Product }) {
         <div className="nd-product-card__body">
           <h3>{product.name}</h3>
 
-          <p
-            className={`nd-product-card__price${
-              product.min_price == null ? " is-unset" : ""
-            }`}
-          >
-            {price}
-          </p>
+          {product.min_retail_price != null || product.min_b2b_price != null ? (
+            <div className="nd-product-card__pricing">
+              {product.min_retail_price != null ? (
+                <div className="nd-price-block nd-price-block--retail">
+                  <span className="nd-price-label">🛒 Eceran</span>
+                  <span className="nd-price-value">
+                    {formatRupiah(product.min_retail_price)}
+                  </span>
+                  <span className="nd-price-unit">/kg</span>
+                </div>
+              ) : null}
+
+              {product.min_b2b_price != null ? (
+                <div className="nd-price-block nd-price-block--b2b">
+                  <span className="nd-price-label">🏭 Grosir</span>
+                  <span className="nd-price-value nd-price-value--b2b">
+                    {formatRupiah(product.min_b2b_price)}
+                  </span>
+                  <span className="nd-price-unit">/kg</span>
+                  {product.min_b2b_kg ? (
+                    <span className="nd-price-min">
+                      min {product.min_b2b_kg}kg
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <p
+              className={`nd-product-card__price${
+                product.min_price == null ? " is-unset" : ""
+              }`}
+            >
+              {price}
+            </p>
+          )}
 
           {product.business_name ? (
             <p className="nd-product-card__seller">
