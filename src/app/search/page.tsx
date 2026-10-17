@@ -99,28 +99,112 @@ function ProductImage({ product }: { product: Product }) {
     );
   }
 
+  // Fallback: gambar kategori
+  const fallbackImage = getCategoryFallbackImage(product.category_slug ?? "");
   return (
-    <div
-      className="nd-product-image nd-product-image--empty"
-      role="img"
-      aria-label={`Gambar ${product.name} belum tersedia`}
-    >
-      <span aria-hidden="true">🛍️</span>
-      <small>Foto belum tersedia</small>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={fallbackImage}
+      alt={product.category_name ?? product.name}
+      className="nd-product-image nd-product-image--fallback"
+      loading="lazy"
+    />
   );
 }
+
+// ============================================================
+// Fallback: Estimasi Harga Pasaran + Gambar Kategori
+// ============================================================
+
+const MARKET_PRICE_ESTIMATES: Record<string, { min: number; max: number }> = {
+  "ayam-utuh": { min: 35000, max: 42000 },
+  "ayam-karkas": { min: 35000, max: 42000 },
+  "boneless-dada": { min: 45000, max: 55000 },
+  "boneless-paha": { min: 42000, max: 50000 },
+  "paha-pentung": { min: 35000, max: 42000 },
+  "sayap": { min: 32000, max: 38000 },
+  "ceker": { min: 20000, max: 26000 },
+  "kepala": { min: 15000, max: 22000 },
+  "jantung": { min: 25000, max: 35000 },
+  "hati": { min: 25000, max: 35000 },
+  "ampela": { min: 25000, max: 35000 },
+  "usus": { min: 15000, max: 20000 },
+  "tulang": { min: 10000, max: 15000 },
+  "kulit": { min: 18000, max: 25000 },
+  "tunggir": { min: 20000, max: 28000 },
+  "krokong": { min: 18000, max: 25000 },
+  "ikan": { min: 25000, max: 45000 },
+  "tuna": { min: 40000, max: 65000 },
+  "fillet": { min: 50000, max: 80000 },
+  "dori": { min: 45000, max: 65000 },
+  "kakap": { min: 55000, max: 85000 },
+  "tenggiri": { min: 60000, max: 90000 },
+  "udang": { min: 70000, max: 120000 },
+  "pakan-kucing": { min: 25000, max: 80000 },
+  "pakan-anjing": { min: 30000, max: 90000 },
+  "pakan-ikan": { min: 15000, max: 45000 },
+  "pakan-ternak": { min: 8000, max: 25000 },
+  "tepung-ikan": { min: 12000, max: 18000 },
+  "minyak-ikan": { min: 20000, max: 35000 },
+};
+
+function getMarketEstimate(product: Product): { min: number; max: number } | null {
+  const key = `${product.slug ?? ""} ${product.name ?? ""}`.toLowerCase();
+  for (const [needle, estimate] of Object.entries(MARKET_PRICE_ESTIMATES)) {
+    if (key.includes(needle)) return estimate;
+  }
+  return null;
+}
+
+function formatPriceRange(product: Product): string {
+  const min = Number(product.min_price) || 0;
+  const max = Number(product.max_price) || 0;
+  const isPhysical = product.product_type === "physical";
+
+  if (min > 0) {
+    const per500 = isPhysical ? min / 2 : min;
+    const unit = isPhysical ? " / 500 gram" : "";
+    if (max > 0 && max !== min) {
+      return `Mulai dari ${formatRupiah(per500)}${unit}`;
+    }
+    return `${formatRupiah(per500)}${unit}`;
+  }
+
+  const estimate = getMarketEstimate(product);
+  if (estimate) {
+    const per500 = isPhysical ? estimate.min / 2 : estimate.min;
+    const per500Max = isPhysical ? estimate.max / 2 : estimate.max;
+    return `Estimasi ${formatRupiah(per500)} – ${formatRupiah(per500Max)} / 500 gram`;
+  }
+
+  return "Harga menyusul";
+}
+
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  "makanan-minuman": "/kategori/01-makanan-minuman.png",
+  "pertanian-hasil-bumi": "/kategori/02-pertanian-hasil-bumi.png",
+  "peternakan-daging-perikanan": "/kategori/03-peternakan-daging-perikanan.png",
+  "petfood-kebutuhan-hewan": "/kategori/04-petfood-kebutuhan-hewan.png",
+  "fashion-aksesori": "/kategori/05-fashion-aksesori.png",
+  "kerajinan-produk-kreatif": "/kategori/06-kerajinan-produk-kreatif.png",
+  "rumah-tangga-perlengkapan": "/kategori/07-rumah-tangga-perlengkapan.png",
+  "kecantikan-perawatan-diri": "/kategori/08-kecantikan-perawatan-diri.png",
+  "tanaman-bunga-florist": "/kategori/09-tanaman-bunga-florist.png",
+  "elektronik-peralatan": "/kategori/10-elektronik-peralatan.png",
+  "jasa-layanan-bisnis": "/kategori/11-jasa-layanan-bisnis.png",
+  "industri-grosir-b2b": "/kategori/12-industri-grosir-b2b.png",
+};
+
+function getCategoryFallbackImage(categorySlug: string): string {
+  return CATEGORY_FALLBACK_IMAGES[categorySlug] ?? "/kategori/01-makanan-minuman.png";
+}
+
+// ============================================================
 
 function ProductCard({ product }: { product: Product }) {
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
-  const price =
-    product.min_price == null
-      ? "Harga belum tersedia"
-      : product.max_price != null &&
-          product.max_price !== product.min_price
-        ? `${formatRupiah(product.min_price)} – ${formatRupiah(product.max_price)}`
-        : formatRupiah(product.min_price);
+  const price = formatPriceRange(product);
 
   const hasStock =
     product.available_stock != null && product.available_stock > 0;
