@@ -12,3 +12,6 @@ dist/
 *.bak
 *.bak_*
 *.bak-*
+
+# Backup files
+*.bak*
