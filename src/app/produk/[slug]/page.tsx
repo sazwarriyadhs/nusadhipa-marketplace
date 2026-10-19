@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";`r`nimport { getSauriImage } from "@/lib/sauri-images";
+import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";
+import { getSauriImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
 
@@ -117,4 +118,5 @@ export default async function ProductDetailPage({ params }: PageProps) {
     </main>
   );
 }
+
 

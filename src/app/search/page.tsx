@@ -8,7 +8,8 @@ import {
   getProducts,
   type Category,
   type Product,
-} from "@/lib/marketplace-api";`r`nimport { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
+} from "@/lib/marketplace-api";
+import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
 
@@ -605,3 +606,4 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+

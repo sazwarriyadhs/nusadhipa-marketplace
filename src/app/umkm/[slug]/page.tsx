@@ -6,7 +6,8 @@ import {
   formatRupiah,
   type Product,
   type BusinessInfo,
-} from "@/lib/marketplace-api";`r`nimport { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
+} from "@/lib/marketplace-api";
+import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
 
@@ -330,5 +331,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
     </main>
   );
 }
+
 
 
