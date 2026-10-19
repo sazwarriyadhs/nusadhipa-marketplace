@@ -8,7 +8,7 @@ import {
   getProducts,
   type Category,
   type Product,
-} from "@/lib/marketplace-api";
+} from "@/lib/marketplace-api";`r`nimport { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
 

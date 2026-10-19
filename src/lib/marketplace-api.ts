@@ -29,6 +29,11 @@ export interface Product {
   business_slug: string;
   min_price: string | number;
   max_price: string | number;
+  min_retail_price?: string | number | null;
+  max_retail_price?: string | number | null;
+  min_b2b_price?: string | number | null;
+  max_b2b_price?: string | number | null;
+  min_b2b_kg?: string | number | null;
   available_stock: number;
   image_url: string | null;
 }
@@ -40,6 +45,14 @@ export interface ProductVariant {
   attributes: string | null;
   price: string | number;
   compare_at_price: string | number | null;
+  retail_price?: string | number | null;
+  b2b_price?: string | number | null;
+  min_retail_kg?: string | number | null;
+  min_b2b_kg?: string | number | null;
+  retail_step_kg?: string | number | null;
+  b2b_step_kg?: string | number | null;
+  selling_unit?: string | null;
+  sales_mode?: string | null;
   weight_grams: number | null;
   available_stock: number;
 }

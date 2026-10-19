@@ -6,7 +6,7 @@ import {
   formatRupiah,
   type Product,
   type BusinessInfo,
-} from "@/lib/marketplace-api";
+} from "@/lib/marketplace-api";`r`nimport { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,13 @@ function extractApiList<T>(response: unknown): T[] {
 }
 
 function ProductCard({ product }: { product: Product }) {
-  const imageUrl = resolveImageUrl(product.image_url);
+  const originalImageUrl = resolveImageUrl(product.image_url);
+  // Prioritas 1: Gambar dari nama produk
+  const fallbackByProduct = getSauriImage(product.name);
+  // Prioritas 2: Gambar dari kategori
+  const fallbackByCategory = getCategoryImage(product.category_name);
+  
+  const imageUrl = originalImageUrl || fallbackByProduct || fallbackByCategory;
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
   const price =
@@ -91,30 +97,9 @@ function ProductCard({ product }: { product: Product }) {
 export default async function StoreProfilePage({ params }: PageProps) {
   const { slug } = await params;
 
-  const [businessResult, productsResult] = await Promise.allSettled([
-    getBusinessBySlug(slug),
-    getProducts({ limit: 100 }),
-  ]);
-
-  const business: BusinessInfo | null =
-    businessResult.status === "fulfilled" ? businessResult.value : null;
-
-  const allProducts: Product[] =
-    productsResult.status === "fulfilled"
-      ? extractApiList<Product>(productsResult.value)
-      : [];
-
-  const products = allProducts.filter((p) => p.business_slug === slug);
-
-  const categories = Array.from(
-    new Set(products.map((p) => p.category_name).filter(Boolean)),
-  ).slice(0, 6);
-
-  const bannerUrl = resolveImageUrl(business?.banner_url);
-  const logoUrl = resolveImageUrl(business?.logo_url);
-  const isVerified = business?.verification_status === "verified";
-
-  if (!business || business.slug !== slug) {
+  const businessResult = await getBusinessBySlug(slug).catch(() => null);
+  
+  if (!businessResult || businessResult.slug !== slug) {
     return (
       <main className="nd-store-profile">
         <div className="nd-store-empty-page">
@@ -128,6 +113,34 @@ export default async function StoreProfilePage({ params }: PageProps) {
       </main>
     );
   }
+
+  const productsResult = await getProducts({ 
+    businessSlug: slug, 
+    limit: 100 
+  }).catch(() => []);
+
+  const business: BusinessInfo | null = businessResult;
+  const products: Product[] = extractApiList<Product>(productsResult);
+
+  const business: BusinessInfo | null =
+    businessResult.status === "fulfilled" ? businessResult.value : null;
+
+  const allProducts: Product[] =
+    productsResult.status === "fulfilled"
+      ? extractApiList<Product>(productsResult.value)
+      : [];
+
+  
+
+  const categories = Array.from(
+    new Set(products.map((p) => p.category_name).filter(Boolean)),
+  ).slice(0, 6);
+
+  const bannerUrl = resolveImageUrl(business?.banner_url);
+  const logoUrl = resolveImageUrl(business?.logo_url);
+  const isVerified = business?.verification_status === "verified";
+
+
 
   return (
     <main className="nd-store-profile">
@@ -317,3 +330,5 @@ export default async function StoreProfilePage({ params }: PageProps) {
     </main>
   );
 }
+
+

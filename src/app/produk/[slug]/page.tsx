@@ -1,243 +1,120 @@
 import Link from "next/link";
-import ProductAddToCart from "@/components/cart/ProductAddToCart";
+import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";`r`nimport { getSauriImage } from "@/lib/sauri-images";
 
-// Helper: pastikan URL gambar absolute
+export const dynamic = "force-dynamic";
+
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
+
 const API_BASE = (
-  process.env.NEXT_PUBLIC_MARKETPLACE_API_URL ||
-  process.env.MARKETPLACE_API_URL ||
-  "https://api.nusadhipa.shop/api/v1"
+  process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || "https://api.nusadhipa.shop/api/v1"
 ).replace(/\/api\/v1\/?$/, "");
 
 function resolveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
-
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
-import { getProduct, formatRupiah } from "@/lib/marketplace-api";
 
-type ProductPageProps = {
-  params: Promise<{ slug: string }>;
-};
-
-export default async function ProductDetailPage({
-  params,
-}: ProductPageProps) {
+export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-
-  let product = null;
-  let unavailable = false;
-
+  
+  let product: ProductDetail | null = null;
   try {
     product = await getProduct(slug);
-  } catch {
-    unavailable = true;
-  }
-
-  if (unavailable) {
-    return (
-      <main className="mx-auto max-w-5xl px-6 py-16">
-        <p className="text-sm text-gray-500">NUSA-DHIPA / Marketplace</p>
-        <h1 className="mt-4 text-2xl font-bold text-gray-900">
-          Katalog sementara tidak tersedia
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Layanan katalog belum dapat dihubungi. Silakan coba kembali nanti.
-        </p>
-        <Link
-          href="/"
-          className="mt-6 inline-block rounded-lg bg-red-600 px-5 py-3 font-semibold text-white"
-        >
-          Kembali ke marketplace
-        </Link>
-      </main>
-    );
+  } catch (e) {
+    product = null;
   }
 
   if (!product) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-16">
-        <p className="text-sm text-gray-500">NUSA-DHIPA / Marketplace</p>
-        <h1 className="mt-4 text-2xl font-bold text-gray-900">
-          Produk tidak ditemukan
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Produk belum dipublikasikan atau tautannya tidak valid.
-        </p>
-        <Link
-          href="/"
-          className="mt-6 inline-block rounded-lg bg-red-600 px-5 py-3 font-semibold text-white"
-        >
-          Kembali ke marketplace
-        </Link>
+      <main className="mx-auto max-w-7xl px-5 py-10">
+        <div className="text-center py-20">
+          <span className="text-6xl">🛍️</span>
+          <h1 className="mt-4 text-3xl font-bold">Produk tidak ditemukan</h1>
+          <Link href="/search" className="mt-4 inline-block rounded-xl bg-red-600 px-6 py-3 text-white font-semibold">
+            Kembali ke Katalog
+          </Link>
+        </div>
       </main>
     );
   }
 
-  const variants = product.variants ?? [];
-  const prices = variants
-    .map((variant) => Number(variant.price))
-    .filter((price) => Number.isFinite(price) && price >= 0);
+  // Ambil gambar dari array images (kalau ada), atau fallback ke null
+  const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0];
+  const originalImageUrl = resolveImageUrl(primaryImage?.image_url);
+  
+  // Kalau gambar di database kosong, pakai fallback dari folder public/sauri
+  const fallbackImageUrl = getSauriImage(product.name);
+  const imageUrl = originalImageUrl || fallbackImageUrl;
 
-  const minPrice = prices.length ? Math.min(...prices) : null;
-  const maxPrice = prices.length ? Math.max(...prices) : null;
-  const availableStock = variants.reduce(
-    (total, variant) => total + Math.max(0, Number(variant.available_stock) || 0),
-    0
-  );
-
-  const productImages = product.images ?? [];
-  const primaryImage =
-    productImages.find((image) => Number(image.is_primary) === 1) ??
-    productImages[0];
+  // Ambil harga & stok dari varian pertama (karena di ProductDetail min_price di-Omit)
+  const firstVariant = product.variants?.[0];
+  const price = firstVariant
+    ? formatRupiah(firstVariant.price)
+    : "Harga belum tersedia";
+  const stock = firstVariant?.available_stock ?? 0;
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
-      <nav className="mb-8 text-sm text-gray-500">
-        <Link href="/" className="hover:text-red-600">
-          Beranda
-        </Link>
+    <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
+      {/* Breadcrumb */}
+      <nav className="mb-6 text-sm text-gray-500">
+        <Link href="/" className="hover:text-red-600">Beranda</Link>
         {" / "}
-        <Link href="/search" className="hover:text-red-600">
-          Marketplace
-        </Link>
+        <Link href="/search" className="hover:text-red-600">Produk</Link>
         {" / "}
-        <span className="text-gray-800">{product.name}</span>
+        <span>{product.name}</span>
       </nav>
 
-      <div className="grid gap-8 md:grid-cols-2">
-        <section className="flex min-h-80 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 p-6">
-          {primaryImage?.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={resolveImageUrl(primaryImage.image_url) || ""}
-              alt={primaryImage.alt_text || product.name}
-              className="max-h-[440px] w-full rounded-xl object-contain"
-            />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Gambar */}
+        <div className="aspect-square w-full overflow-hidden rounded-3xl bg-gray-100 border border-gray-200">
+          {imageUrl ? (
+            <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="text-center">
-              <div className="text-6xl" aria-hidden="true">
-                {"🛍️"}
-              </div>
-              <p className="mt-4 text-sm text-gray-500">
-                Foto produk belum tersedia
-              </p>
+            <div className="flex h-full items-center justify-center text-gray-400">
+              <span className="text-6xl">🛍️</span>
             </div>
           )}
-        </section>
+        </div>
 
-        <section className="py-2">
-          <p className="text-sm font-medium text-red-600">
-            {product.category_name}
+        {/* Info */}
+        <div className="flex flex-col justify-center">
+          <p className="text-sm font-bold uppercase tracking-wider text-red-600">
+            {product.category_name || "Kategori"}
           </p>
-
-          <h1 className="mt-3 text-3xl font-bold text-gray-900">
+          <h1 className="mt-2 text-3xl font-bold text-gray-900 sm:text-4xl">
             {product.name}
           </h1>
-
-          {product.brand ? (
-            <p className="mt-2 text-sm text-gray-500">
-              Merek: {product.brand}
-            </p>
-          ) : null}
-
-          <p className="mt-4 text-2xl font-bold text-gray-900">
-            {minPrice === null
-              ? "Harga belum tersedia"
-              : minPrice === maxPrice
-                ? formatRupiah(minPrice)
-                : `${formatRupiah(minPrice)} – ${formatRupiah(maxPrice!)}`}
-          </p>
-
-          <p className="mt-2 text-sm text-gray-600">
-            {availableStock > 0
-              ? `Stok tersedia: ${availableStock} unit stok tercatat`
-              : "Stok belum tersedia"}
-          </p>
-
-          <p className="mt-5 leading-7 text-gray-600">
-            {product.description ||
-              product.short_description ||
-              "Informasi produk belum tersedia."}
-          </p>
-
-          {variants.length > 0 ? (
-            <section className="mt-6 rounded-xl border border-gray-200 p-4">
-              <h2 className="font-semibold text-gray-900">
-                Pilihan varian
-              </h2>
-
-              <ul className="mt-3 space-y-3">
-                {variants.map((variant) => {
-                  const stock = Math.max(
-                    0,
-                    Number(variant.available_stock) || 0
-                  );
-
-                  return (
-                    <li
-                      key={variant.id}
-                      className="flex items-start justify-between gap-4 border-t border-gray-100 pt-3"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {variant.variant_name}
-                        </p>
-                        {variant.weight_grams ? (
-                          <p className="text-sm text-gray-500">
-                            {variant.weight_grams >= 1000
-                              ? `${variant.weight_grams / 1000} kg`
-                              : `${variant.weight_grams} gram`}
-                          </p>
-                        ) : null}
-                        <p className="text-sm text-gray-500">
-                          {stock > 0
-                            ? `Stok: ${stock}`
-                            : "Stok kosong"}
-                        </p>
-                      </div>
-
-                      <p className="whitespace-nowrap font-semibold text-gray-900">
-                        {formatRupiah(variant.price)}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ) : (
-            <p className="mt-5 text-sm text-gray-500">
-              Varian produk belum tersedia.
-            </p>
+          
+          <p className="mt-4 text-3xl font-black text-red-600">{price}</p>
+          
+          {stock > 0 && (
+            <p className="mt-2 text-sm text-gray-600">Stok tersedia: <strong>{stock}</strong></p>
           )}
 
-          <div className="mt-6 rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">Penjual</p>
-            <p className="mt-1 font-semibold text-gray-900">
-              {product.business_name}
-            </p>
-            <p className="mt-2 text-xs leading-5 text-gray-500">
-              Periksa informasi penjual, persyaratan produk, harga, dan
-              ketersediaan aktual sebelum transaksi.
-            </p>
-          </div>
+          {product.description && (
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <h2 className="text-lg font-bold">Deskripsi Produk</h2>
+              <p className="mt-2 text-gray-600 leading-relaxed whitespace-pre-line">{product.description}</p>
+            </div>
+          )}
 
-          <div className="mt-6">
-            <ProductAddToCart
-              productSlug={product.slug}
-              productName={product.name}
-              businessName={product.business_name}
-              imageUrl={primaryImage?.image_url ?? null}
-              variants={product.variants ?? []}
-            />
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <button className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-bold text-white hover:bg-red-700 transition">
+              🛒 Beli Sekarang
+            </button>
+            <Link
+              href={`/umkm/${product.business_slug}`}
+              className="flex-1 rounded-xl border border-gray-300 px-6 py-3 text-center font-bold text-gray-900 hover:bg-gray-50 transition"
+            >
+              🏪 Kunjungi Toko
+            </Link>
           </div>
-
-          <p className="mt-3 text-xs leading-5 text-gray-500">
-            Informasi harga dan stok bersumber dari katalog. Konfirmasikan
-            ketersediaan aktual sebelum transaksi.
-          </p>
-        </section>
+        </div>
       </div>
     </main>
   );
 }
+
