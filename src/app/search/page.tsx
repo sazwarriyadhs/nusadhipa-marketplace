@@ -265,7 +265,8 @@ function ProductCard({ product }: { product: Product }) {
             </div>
           ) : (
             <p
-              className={`nd-product-card__price${
+              className={
+d-product-card__price${
                 product.min_price == null ? " is-unset" : ""
               }`}
             >
@@ -467,7 +468,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
               <div className="nd-cat-filter__chips">
                 <Link
                   href={buildUrl({ category: "", page: 1 })}
-                  className={`nd-chip${
+                  className={
+d-chip${
                     !selectedCategory ? " is-active" : ""
                   }`}
                 >
@@ -486,7 +488,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
                         category: category.slug ?? "",
                         page: 1,
                       })}
-                      className={`nd-chip nd-chip--with-image${isActive ? " is-active" : ""}`}
+                      className={
+d-chip nd-chip--with-image${isActive ? " is-active" : ""}`}
                     >
                       <img
                         src={visual.image}
@@ -606,4 +609,5 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+
 
