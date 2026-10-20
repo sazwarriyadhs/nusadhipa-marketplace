@@ -166,16 +166,19 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const productsResult = await getProducts({
     q: q || undefined,
     category: category || undefined,
-    page: currentPage,
+    page: 1, // SELALU page 1 biar dapet semua produk
     limit: 500,
   }).catch(() => ({ data: [] }));
 
   const allCategories: Category[] = Array.isArray(categoriesResult) ? categoriesResult : [];
-  // Filter: cuma ambil kategori utama (parent_id === null)
-  const categories = allCategories.filter((cat) => cat.parent_id === null);
-    const allProducts: Product[] = productsResult?.data || [];
-
-  const finalProducts: Product[] = allProducts;
+  const allProducts: Product[] = productsResult?.data || [];
+  
+  // Filter: cuma kategori utama yang BENERAN punya produk
+  const categorySlugsWithProducts = new Set(allProducts.map((p) => p.category_slug));
+  const categories = allCategories.filter(
+    (cat) => cat.parent_id === null && categorySlugsWithProducts.has(cat.slug)
+  );
+    const finalProducts: Product[] = allProducts;
 
   // Pagination: 20 produk per halaman
   const PAGE_SIZE = 26;
@@ -358,6 +361,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+
+
 
 
 
