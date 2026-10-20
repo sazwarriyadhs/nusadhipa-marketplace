@@ -2,40 +2,41 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAvailableRoutes, claimRoute, type CourierRoute } from "@/lib/courier-api";
 
-type Route = {
-  code: string;
-  area: string;
-  customers: number;
-  weight_kg: number;
-  fee: number; // fee dasar rute
-  fee_per_order: number; // fee per pesanan
-};
+const FEE_PER_ORDER = 5000;
+const PLATFORM_FEE_PERCENT = 5;
 
-const FEE_PER_ORDER = 5000; // Rp5.000 per pesanan
-const PLATFORM_FEE_PERCENT = 5; // 5% potongan platform
-
-function calculateFee(route: Route) {
-  const totalOrderFee = route.fee_per_order * route.customers;
-  const gross = route.fee + totalOrderFee;
+function calculateFee(route: CourierRoute) {
+  const totalOrderFee = route.customers * FEE_PER_ORDER;
+  const gross = Number(route.fee) + totalOrderFee;
   const platformFee = Math.round((gross * PLATFORM_FEE_PERCENT) / 100);
   const net = gross - platformFee;
   return { totalOrderFee, gross, platformFee, net };
 }
 
-const AVAILABLE_ROUTES: Route[] = [
-  { code: "A", area: "Bogor Timur", customers: 4, weight_kg: 18, fee: 25000, fee_per_order: 5000 },
-  { code: "B", area: "Baranangsiang", customers: 5, weight_kg: 22, fee: 36000, fee_per_order: 5000 },
-  { code: "C", area: "Bogor Utara", customers: 3, weight_kg: 12, fee: 20000, fee_per_order: 5000 },
-];
-
 export default function CourierDashboardPage() {
+  const [routes, setRoutes] = useState<CourierRoute[]>([]);
+  const [loading, setLoading] = useState(true);
   const [claimedRoutes, setClaimedRoutes] = useState<string[]>([]);
 
-  const handleClaim = (code: string) => {
-    setClaimedRoutes([...claimedRoutes, code]);
-    alert(`Rute ${code} berhasil diambil! (simulasi)`);
+  useEffect(() => {
+    getAvailableRoutes().then((data) => {
+      setRoutes(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleClaim = async (routeId: number, routeCode: string) => {
+    const res = await claimRoute(routeId, "kurir-demo-001");
+    if (res.success) {
+      alert(`✅ Rute ${routeCode} berhasil diambil!`);
+      setClaimedRoutes([...claimedRoutes, routeCode]);
+      setRoutes(routes.filter((r) => r.id !== routeId));
+    } else {
+      alert(`❌ ${res.message}`);
+    }
   };
 
   return (
@@ -72,69 +73,78 @@ export default function CourierDashboardPage() {
         <h2 className="text-xl font-bold text-gray-900">Rute Tersedia</h2>
         <p className="mt-1 text-sm text-gray-600">Pilih rute yang sesuai kapasitas dan lokasi kamu.</p>
 
-        <div className="mt-4 space-y-4">
-          {AVAILABLE_ROUTES.map((route) => {
-            const isClaimed = claimedRoutes.includes(route.code);
-            return (
-              <div key={route.code} className="rounded-2xl border border-gray-200 bg-white p-5">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Rute {route.code} — {route.area}</h3>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {route.customers} pelanggan · {route.weight_kg} kg
-                    </p>
+        {loading ? (
+          <div className="mt-6 text-center text-gray-500">Memuat rute...</div>
+        ) : routes.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-gray-50 p-6 text-center text-gray-500">
+            Belum ada rute tersedia. Cek lagi nanti.
+          </div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {routes.map((route) => {
+              const isClaimed = claimedRoutes.includes(route.route_code);
+              const fee = calculateFee(route);
+              return (
+                <div key={route.id} className="rounded-2xl border border-gray-200 bg-white p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Rute {route.route_code} — {route.area}</h3>
+                      <p className="mt-1 text-sm text-gray-600">
+                        {route.customers} pelanggan · {route.weight_kg} kg
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-black text-red-600">Rp{fee.net.toLocaleString("id-ID")}</p>
+                      <p className="text-xs text-gray-400">estimasi fee bersih</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xl font-black text-red-600">Rp{calculateFee(route).net.toLocaleString("id-ID")}</p>
-                    <p className="text-xs text-gray-400">estimasi fee bersih</p>
-                  </div>
-                </div>
 
-                {/* Prediksi Fee */}
-                <div className="mt-4 rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs font-semibold text-gray-500 mb-2">RINCIAN PREDIKSI FEE</p>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Fee dasar rute</span>
-                      <span className="font-semibold">Rp{route.fee.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Fee per pesanan ({route.customers}x)</span>
-                      <span className="font-semibold">Rp{calculateFee(route).totalOrderFee.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-gray-200 pt-1 mt-1">
-                      <span className="text-gray-600">Total kotor</span>
-                      <span className="font-semibold">Rp{calculateFee(route).gross.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between text-red-600">
-                      <span>Potongan platform ({PLATFORM_FEE_PERCENT}%)</span>
-                      <span>-Rp{calculateFee(route).platformFee.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-gray-300 pt-1 mt-1 text-base font-bold">
-                      <span>Fee bersih diterima</span>
-                      <span className="text-green-700">Rp{calculateFee(route).net.toLocaleString("id-ID")}</span>
+                  {/* Rincian Fee */}
+                  <div className="mt-4 rounded-xl bg-gray-50 p-4">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">RINCIAN PREDIKSI FEE</p>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Fee dasar rute</span>
+                        <span className="font-semibold">Rp{Number(route.fee).toLocaleString("id-ID")}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Fee per pesanan ({route.customers}x)</span>
+                        <span className="font-semibold">Rp{fee.totalOrderFee.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-gray-200 pt-1 mt-1">
+                        <span className="text-gray-600">Total kotor</span>
+                        <span className="font-semibold">Rp{fee.gross.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div className="flex justify-between text-red-600">
+                        <span>Potongan platform ({PLATFORM_FEE_PERCENT}%)</span>
+                        <span>-Rp{fee.platformFee.toLocaleString("id-ID")}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-gray-300 pt-1 mt-1 text-base font-bold">
+                        <span>Fee bersih diterima</span>
+                        <span className="text-green-700">Rp{fee.net.toLocaleString("id-ID")}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-4">
-                  {isClaimed ? (
-                    <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
-                      ✅ Rute sudah diambil. Cek di halaman Rute Aktif.
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleClaim(route.code)}
-                      className="w-full rounded-xl bg-red-600 px-6 py-3 font-bold text-white hover:bg-red-700"
-                    >
-                      Ambil Rute {route.code} →
-                    </button>
-                  )}
+                  <div className="mt-4">
+                    {isClaimed ? (
+                      <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+                        ✅ Rute sudah diambil. Cek di halaman Rute Aktif.
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleClaim(route.id, route.route_code)}
+                        className="w-full rounded-xl bg-red-600 px-6 py-3 font-bold text-white hover:bg-red-700"
+                      >
+                        Ambil Rute {route.route_code} →
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Navigasi */}
@@ -155,4 +165,3 @@ export default function CourierDashboardPage() {
     </main>
   );
 }
-
