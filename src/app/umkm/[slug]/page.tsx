@@ -123,14 +123,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
   const business: BusinessInfo | null = businessResult;
   const products: Product[] = extractApiList<Product>(productsResult);
 
-  const business: BusinessInfo | null =
-    businessResult.status === "fulfilled" ? businessResult.value : null;
-
-  const allProducts: Product[] =
-    productsResult.status === "fulfilled"
-      ? extractApiList<Product>(productsResult.value)
-      : [];
-
   
 
   const categories = Array.from(
@@ -331,6 +323,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
     </main>
   );
 }
+
 
 
 
