@@ -175,22 +175,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const categories = allCategories.filter((cat) => cat.parent_id === null);
     const allProducts: Product[] = productsResult?.data || [];
 
-  let finalProducts: Product[];
-
-  if (category) {
-    // KALAU ADA FILTER KATEGORI: grouping 4 per tenant
-    const grouped = new Map<string, Product[]>();
-    for (const p of allProducts) {
-      if (!grouped.has(p.business_slug)) {
-        grouped.set(p.business_slug, []);
-      }
-      const list = grouped.get(p.business_slug)!;
-      if (list.length < 8) {
-        list.push(p);
-      }
-    }
-    finalProducts = Array.from(grouped.values()).flat();
-  } else {
+  const finalProducts: Product[] = allProducts; else {
     // TANPA FILTER KATEGORI: grouping 4 per tenant juga (biar adil)
     const grouped = new Map<string, Product[]>();
     for (const p of allProducts) {
@@ -386,6 +371,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+
 
 
 
