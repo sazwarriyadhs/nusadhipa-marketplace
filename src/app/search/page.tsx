@@ -206,7 +206,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   }
 
   // Pagination: 20 produk per halaman
-  const PAGE_SIZE = 24;
+  const PAGE_SIZE = 26;
   const totalPages = Math.ceil(finalProducts.length / PAGE_SIZE);
   const startIdx = (currentPage - 1) * PAGE_SIZE;
   const products: Product[] = finalProducts.slice(startIdx, startIdx + PAGE_SIZE);
@@ -386,6 +386,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+
 
 
 
