@@ -167,13 +167,49 @@ export default async function SearchPage({ searchParams }: PageProps) {
     q: q || undefined,
     category: category || undefined,
     page: currentPage,
-    limit: 24,
+    limit: 500,
   }).catch(() => ({ data: [] }));
 
   const allCategories: Category[] = Array.isArray(categoriesResult) ? categoriesResult : [];
   // Filter: cuma ambil kategori utama (parent_id === null)
   const categories = allCategories.filter((cat) => cat.parent_id === null);
-  const products: Product[] = productsResult?.data || [];
+    const allProducts: Product[] = productsResult?.data || [];
+
+  let finalProducts: Product[];
+
+  if (category) {
+    // KALAU ADA FILTER KATEGORI: grouping 4 per tenant
+    const grouped = new Map<string, Product[]>();
+    for (const p of allProducts) {
+      if (!grouped.has(p.business_slug)) {
+        grouped.set(p.business_slug, []);
+      }
+      const list = grouped.get(p.business_slug)!;
+      if (list.length < 4) {
+        list.push(p);
+      }
+    }
+    finalProducts = Array.from(grouped.values()).flat();
+  } else {
+    // TANPA FILTER KATEGORI: grouping 4 per tenant juga (biar adil)
+    const grouped = new Map<string, Product[]>();
+    for (const p of allProducts) {
+      if (!grouped.has(p.business_slug)) {
+        grouped.set(p.business_slug, []);
+      }
+      const list = grouped.get(p.business_slug)!;
+      if (list.length < 4) {
+        list.push(p);
+      }
+    }
+    finalProducts = Array.from(grouped.values()).flat();
+  }
+
+  // Pagination: 20 produk per halaman
+  const PAGE_SIZE = 20;
+  const totalPages = Math.ceil(finalProducts.length / PAGE_SIZE);
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const products: Product[] = finalProducts.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
     <main className="nd-marketplace">
@@ -276,7 +312,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </div>
         ) : (
           <div>
-            <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px"}}>
+            <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "16px", alignItems: "stretch"}}>
               {products.map((product, idx) => (
                 <ProductCard
                   key={product.public_id ?? product.slug ?? `p-${idx}`}
@@ -284,12 +320,77 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 />
               ))}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "32px",
+                marginBottom: "16px",
+              }}>
+                {currentPage > 1 && (
+                  <Link
+                    href={`/search?${new URLSearchParams({
+                      ...(q ? { q } : {}),
+                      ...(category ? { category } : {}),
+                      page: String(currentPage - 1),
+                    }).toString()}`}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #e5e7eb",
+                      background: "#fff",
+                      color: "#374151",
+                      textDecoration: "none",
+                      fontSize: "13px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    ← Sebelumnya
+                  </Link>
+                )}
+                
+                <span style={{fontSize: "13px", color: "#6b7280"}}>
+                  Halaman {currentPage} dari {totalPages}
+                </span>
+
+                {currentPage < totalPages && (
+                  <Link
+                    href={`/search?${new URLSearchParams({
+                      ...(q ? { q } : {}),
+                      ...(category ? { category } : {}),
+                      page: String(currentPage + 1),
+                    }).toString()}`}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #e5e7eb",
+                      background: "#fff",
+                      color: "#374151",
+                      textDecoration: "none",
+                      fontSize: "13px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Selanjutnya →
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
     </main>
   );
 }
+
+
+
+
+
 
 
 
