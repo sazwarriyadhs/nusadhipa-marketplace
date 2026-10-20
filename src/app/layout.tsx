@@ -82,6 +82,7 @@ const MAIN_NAVIGATION: NavigationItem[] = [
   { href: "/", label: "Beranda" },
   { href: "/search", label: "Produk" },
   { href: "/umkm", label: "UMKM & Bisnis" },
+  { href: "/courier", label: "Kurir" },
   { href: "/peluang-usaha", label: "Peluang Bisnis" },
   { href: "/b2b", label: "B2B" },
   { href: "/kbli-2025", label: "KBLI 2025" },
@@ -270,3 +271,4 @@ export default function RootLayout({
     </html>
   );
 }
+

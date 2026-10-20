@@ -1,10 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CourierLandingPage() {
   return (
     <main className="mx-auto max-w-5xl px-5 py-16">
       <div className="text-center">
-        <span className="text-6xl">🚚</span>
+        <div className="flex justify-center">
+          <Image 
+            src="/logos/courier-motor.png" 
+            alt="NUSA-DHIPA Kurir" 
+            width={280} 
+            height={280} 
+            priority
+          />
+        </div>
         <h1 className="mt-6 text-4xl font-bold text-gray-900">
           Jadi Kurir Freelance NUSA-DHIPA
         </h1>
