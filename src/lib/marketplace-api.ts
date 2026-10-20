@@ -110,12 +110,14 @@ export async function getCategories(): Promise<Category[]> {
 export async function getProducts(options: {
   q?: string;
   category?: string;
+  businessSlug?: string;
   page?: number;
   limit?: number;
 } = {}): Promise<ApiList<Product>> {
   const query = new URLSearchParams();
   if (options.q) query.set("q", options.q);
   if (options.category) query.set("category", options.category);
+  if (options.businessSlug) query.set("business", options.businessSlug);
   query.set("page", String(options.page ?? 1));
   query.set("limit", String(options.limit ?? 24));
 
@@ -251,3 +253,4 @@ export function formatRupiah(value: string | number): string {
     maximumFractionDigits: 0
   }).format(amount);
 }
+
