@@ -50,25 +50,86 @@ function extractApiList<T>(response: unknown): T[] {
 /* ---------- Kategori visual ---------- */
 
 const categoryVisuals: Record<string, { image: string; label: string; num: number }> = {
+  // 01 - Makanan & Minuman
+  makanan: { image: "/kategori/01-makanan-minuman.png", label: "Makanan", num: 1 },
+  minuman: { image: "/kategori/01-makanan-minuman.png", label: "Minuman", num: 1 },
   "makanan-minuman": { image: "/kategori/01-makanan-minuman.png", label: "Makanan & Minuman", num: 1 },
+  "makanan-olahan": { image: "/kategori/01-makanan-minuman.png", label: "Makanan Olahan", num: 1 },
+  sembako: { image: "/kategori/01-makanan-minuman.png", label: "Sembako", num: 1 },
+  
+  // 02 - Pertanian & Hasil Bumi
+  pertanian: { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian", num: 2 },
   "pertanian-hasil-bumi": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Pertanian & Hasil Bumi", num: 2 },
-  "peternakan-daging-perikanan": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan", num: 3 },
-  "petfood-kebutuhan-hewan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan", num: 4 },
-  "fashion-aksesori": { image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori", num: 5 },
-  "kerajinan-produk-kreatif": { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif", num: 6 },
-  "rumah-tangga-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan", num: 7 },
-  "kecantikan-perawatan-diri": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri", num: 8 },
-  "tanaman-bunga-florist": { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist", num: 9 },
-  "elektronik-peralatan": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan", num: 10 },
-  "jasa-layanan-bisnis": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis", num: 11 },
-  "industri-grosir-b2b": { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B", num: 12 },
-
-  // Fallback (icon emoji kalau gambar nggak ketemu)
-  ayam: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ayam", num: 3 },
-  unggas: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ayam & Unggas", num: 3 },
-  ikan: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ikan", num: 3 },
+  "hasil-pertanian": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Hasil Pertanian", num: 2 },
+  bibit: { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Bibit & Benih", num: 2 },
+  "bibit-benih": { image: "/kategori/02-pertanian-hasil-bumi.png", label: "Bibit & Benih", num: 2 },
+  
+  // 03 - Peternakan, Daging & Perikanan
+  peternakan: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan", num: 3 },
   daging: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Daging", num: 3 },
+  unggas: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Unggas", num: 3 },
+  "peternakan-daging-perikanan": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Peternakan, Daging & Perikanan", num: 3 },
+  "daging-unggas": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Daging & Unggas", num: 3 },
+  ikan: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ikan", num: 3 },
+  "ikan-seafood": { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Ikan & Seafood", num: 3 },
+  seafood: { image: "/kategori/03-peternakan-daging-perikanan.png", label: "Seafood", num: 3 },
+  
+  // 04 - Petfood & Kebutuhan Hewan
   petfood: { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood", num: 4 },
+  "petfood-kebutuhan-hewan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Petfood & Kebutuhan Hewan", num: 4 },
+  "hewan-peliharaan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Hewan Peliharaan", num: 4 },
+  "perlengkapan-hewan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Perlengkapan Hewan", num: 4 },
+  pakan: { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Pakan", num: 4 },
+  "pakan-ternak": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Pakan Ternak", num: 4 },
+  "pakan-kucing": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Pakan Kucing", num: 4 },
+  "pakan-anjing": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Pakan Anjing", num: 4 },
+  "pakan-ikan": { image: "/kategori/04-petfood-kebutuhan-hewan.png", label: "Pakan Ikan", num: 4 },
+  
+  // 05 - Fashion & Aksesori
+  fashion: { image: "/kategori/05-fashion-aksesori.png", label: "Fashion", num: 5 },
+  "fashion-aksesori": { image: "/kategori/05-fashion-aksesori.png", label: "Fashion & Aksesori", num: 5 },
+  pakaian: { image: "/kategori/05-fashion-aksesori.png", label: "Pakaian", num: 5 },
+  "aksesori-fashion": { image: "/kategori/05-fashion-aksesori.png", label: "Aksesori Fashion", num: 5 },
+  "alas-kaki": { image: "/kategori/05-fashion-aksesori.png", label: "Alas Kaki", num: 5 },
+  
+  // 06 - Kerajinan & Produk Kreatif
+  kerajinan: { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan", num: 6 },
+  "kerajinan-produk-kreatif": { image: "/kategori/06-kerajinan-produk-kreatif.png", label: "Kerajinan & Produk Kreatif", num: 6 },
+  
+  // 07 - Rumah Tangga & Perlengkapan
+  rumah: { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah", num: 7 },
+  "rumah-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah & Perlengkapan", num: 7 },
+  "rumah-tangga-perlengkapan": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Rumah Tangga & Perlengkapan", num: 7 },
+  "peralatan-rumah": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Peralatan Rumah", num: 7 },
+  "peralatan-dapur": { image: "/kategori/07-rumah-tangga-perlengkapan.png", label: "Peralatan Dapur", num: 7 },
+  
+  // 08 - Kecantikan & Perawatan Diri
+  kecantikan: { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan", num: 8 },
+  "kesehatan-kecantikan": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kesehatan & Kecantikan", num: 8 },
+  "kecantikan-perawatan-diri": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Kecantikan & Perawatan Diri", num: 8 },
+  "perawatan-diri": { image: "/kategori/08-kecantikan-perawatan-diri.png", label: "Perawatan Diri", num: 8 },
+  
+  // 09 - Tanaman, Bunga & Florist
+  tanaman: { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman", num: 9 },
+  "tanaman-bunga-florist": { image: "/kategori/09-tanaman-bunga-florist.png", label: "Tanaman, Bunga & Florist", num: 9 },
+  
+  // 10 - Elektronik & Peralatan
+  elektronik: { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik", num: 10 },
+  "elektronik-digital": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Digital", num: 10 },
+  "elektronik-peralatan": { image: "/kategori/10-elektronik-peralatan.png", label: "Elektronik & Peralatan", num: 10 },
+  "aksesori-elektronik": { image: "/kategori/10-elektronik-peralatan.png", label: "Aksesori Elektronik", num: 10 },
+  "produk-digital": { image: "/kategori/10-elektronik-peralatan.png", label: "Produk Digital", num: 10 },
+  
+  // 11 - Jasa & Layanan Bisnis
+  jasa: { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa", num: 11 },
+  "jasa-layanan": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan", num: 11 },
+  "jasa-profesional": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa Profesional", num: 11 },
+  "jasa-bisnis": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa Bisnis", num: 11 },
+  "jasa-layanan-bisnis": { image: "/kategori/11-jasa-layanan-bisnis.png", label: "Jasa & Layanan Bisnis", num: 11 },
+  
+  // 12 - Industri, Grosir & B2B
+  industri: { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri", num: 12 },
+  "industri-grosir-b2b": { image: "/kategori/12-industri-grosir-b2b.png", label: "Industri, Grosir & B2B", num: 12 },
 };
 
 function getCategoryVisual(category: Category) {
