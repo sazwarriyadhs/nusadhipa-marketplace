@@ -185,7 +185,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         grouped.set(p.business_slug, []);
       }
       const list = grouped.get(p.business_slug)!;
-      if (list.length < 4) {
+      if (list.length < 8) {
         list.push(p);
       }
     }
@@ -198,7 +198,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         grouped.set(p.business_slug, []);
       }
       const list = grouped.get(p.business_slug)!;
-      if (list.length < 4) {
+      if (list.length < 8) {
         list.push(p);
       }
     }
@@ -206,7 +206,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   }
 
   // Pagination: 20 produk per halaman
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 8;
   const totalPages = Math.ceil(finalProducts.length / PAGE_SIZE);
   const startIdx = (currentPage - 1) * PAGE_SIZE;
   const products: Product[] = finalProducts.slice(startIdx, startIdx + PAGE_SIZE);
@@ -386,6 +386,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
     </main>
   );
 }
+
+
 
 
 
