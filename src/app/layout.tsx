@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import AppProviders from "@/components/AppProviders";
 import CartCount from "@/components/cart/CartCount";
@@ -13,6 +14,7 @@ const SITE_DESCRIPTION =
 
 const LOGO_PATH = "/images/logo_nusadhipa.png";
 const SOCIAL_IMAGE_PATH = "/images/header_image.jpg";
+const GA_MEASUREMENT_ID = "G-4JZGXNX6GZ";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -131,11 +133,7 @@ function BrandLogo({ footer = false }: { footer?: boolean }) {
         width={220}
         height={72}
         priority={!footer}
-        sizes={
-          footer
-            ? "180px"
-            : "(max-width: 640px) 145px, 200px"
-        }
+        sizes={footer ? "180px" : "(max-width: 640px) 145px, 200px"}
         style={{
           display: "block",
           width: "100%",
@@ -267,8 +265,9 @@ export default function RootLayout({
 
           <SiteFooter />
         </AppProviders>
+
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
       </body>
     </html>
   );
 }
-
