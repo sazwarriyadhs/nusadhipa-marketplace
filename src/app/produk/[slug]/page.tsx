@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";
 import { getSauriImage } from "@/lib/sauri-images";
+import ProductPurchase from "@/components/products/ProductPurchase";
 
 export const dynamic = "force-dynamic";
 
@@ -118,17 +119,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-bold text-white hover:bg-red-700 transition">
-              🛒 Beli Sekarang
-            </button>
-            <Link
-              href={`/umkm/${product.business_slug}`}
-              className="flex-1 rounded-xl border border-gray-300 px-6 py-3 text-center font-bold text-gray-900 hover:bg-gray-50 transition"
-            >
-              🏪 Kunjungi Toko
-            </Link>
-          </div>
+          <ProductPurchase
+            productSlug={product.slug}
+            productName={product.name}
+            businessName={product.business_name}
+            imageUrl={imageUrl}
+            variants={product.variants || []}
+          />
+          <Link
+            href={`/umkm/${product.business_slug}`}
+            className="mt-3 block rounded-xl border border-gray-300 px-6 py-3 text-center font-bold text-gray-900 transition hover:bg-gray-50"
+          >
+            🏪 Kunjungi Toko
+          </Link>
         </div>
       </div>
     </main>
