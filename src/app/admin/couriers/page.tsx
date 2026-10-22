@@ -1,5 +1,7 @@
 "use client";
 
+import { getToken } from "@/lib/auth-api";
+
 import { useEffect, useState } from "react";
 
 type Courier = {
@@ -21,7 +23,11 @@ export default function AdminCouriersPage() {
 
   const fetchCouriers = async () => {
     try {
-      const res = await fetch("https://api.nusadhipa.shop/api/v1/courier/admin/list");
+      const token = getToken();
+      if (!token) throw new Error("Sesi login tidak ditemukan. Login sebagai superadmin.");
+      const res = await fetch("https://api.nusadhipa.shop/api/v1/courier/admin/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (data.success) setCouriers(data.data);
     } catch (err) {
@@ -37,20 +43,36 @@ export default function AdminCouriersPage() {
 
   const updateStatus = async (id: number, status: string) => {
     try {
-      const res = await fetch(`https://api.nusadhipa.shop/api/v1/courier/admin/${id}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
+      const token = getToken();
+
+      if (!token) {
+        alert("Sesi login tidak ditemukan. Silakan login kembali.");
+        return;
+      }
+
+      const res = await fetch(
+        `https://api.nusadhipa.shop/api/v1/courier/admin/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
       const data = await res.json();
-      if (data.success) {
-        alert(`✅ Kurir ${status}`);
+
+      if (res.ok && data.success) {
+        alert(`Kurir berhasil diperbarui: ${status}`);
         fetchCouriers();
       } else {
-        alert(`❌ ${data.message}`);
+        alert(data.message || `Gagal memperbarui kurir (HTTP ${res.status})`);
       }
-    } catch (err) {
-      alert("Error: " + err);
+    } catch (error) {
+      console.error("Gagal memperbarui status kurir:", error);
+      alert("Terjadi kesalahan saat memperbarui status kurir.");
     }
   };
 

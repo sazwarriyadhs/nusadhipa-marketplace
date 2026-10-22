@@ -1,0 +1,118 @@
+========== 1. INVENTARIS HALAMAN ==========
+
+Route                     File                              Lines
+-----                     ----                              -----
+/                         page.tsx                            786
+/admin/couriers           admin\couriers\page.tsx             100
+/b2b                      b2b\page.tsx                        246
+/bantuan                  bantuan\page.tsx                    163
+/checkout                 checkout\page.tsx                   367
+/checkout/success         checkout\success\page.tsx            90
+/courier                  courier\page.tsx                     60
+/courier/dashboard        courier\dashboard\page.tsx          167
+/courier/deliveries       courier\deliveries\page.tsx          42
+/courier/earnings         courier\earnings\page.tsx            61
+/courier/login            courier\login\page.tsx               64
+/courier/profile          courier\profile\page.tsx             49
+/courier/register         courier\register\page.tsx            81
+/courier/routes           courier\routes\page.tsx              47
+/courier/routes/{routeId} courier\routes\[routeId]\page.tsx    10
+/kbli-2025                kbli-2025\page.tsx                  166
+/keranjang                keranjang\page.tsx                  167
+/login                    login\page.tsx                      114
+/peluang-usaha            peluang-usaha\page.tsx              507
+/pesanan                  pesanan\page.tsx                    169
+/produk/{slug}            produk\[slug]\page.tsx              123
+/promo                    promo\page.tsx                      399
+/register                 register\page.tsx                   217
+/search                   search\page.tsx                     388
+/umkm                     umkm\page.tsx                       495
+/umkm/{slug}              umkm\[slug]\page.tsx                330
+
+
+Total halaman: 26
+Total file source: 32
+
+========== 2. INDIKASI PLACEHOLDER ==========
+Tidak ada kata placeholder umum yang terdeteksi.
+
+========== 3. LINK / AKSI PERLU DITINJAU ==========
+Tidak ada pola umum yang terdeteksi.
+
+========== 4. FORM DAN INPUT ==========
+Jumlah baris terkait form/input: 51
+
+File                      Line Text
+----                      ---- ----
+layout.tsx                 161 <form
+layout.tsx                 170 <input
+layout.tsx                 174 placeholder="Cari produk, kategori, atau toko..."
+layout.tsx                 176 <button type="submit" aria-label="Cari">
+checkout\page.tsx          162 <form onSubmit={handleSubmit} className="checkout-form">
+checkout\page.tsx          168 <input
+checkout\page.tsx          172 placeholder="Nama lengkap"
+checkout\page.tsx          179 <input
+checkout\page.tsx          183 placeholder="08123456789"
+checkout\page.tsx          190 <textarea
+checkout\page.tsx          193 placeholder="Jalan, nomor rumah, RT/RW"
+checkout\page.tsx          202 <input
+checkout\page.tsx          206 placeholder="Kota Bogor"
+checkout\page.tsx          212 <input
+checkout\page.tsx          216 placeholder="Jawa Barat"
+checkout\page.tsx          223 <input
+checkout\page.tsx          227 placeholder="16143"
+checkout\page.tsx          233 <textarea
+checkout\page.tsx          236 placeholder="Catatan untuk penjual"
+checkout\page.tsx          250 <input
+checkout\page.tsx          268 <input
+courier\login\page.tsx      42 <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+courier\login\page.tsx      45 <input type="email" required value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="email@example.com"
+                               />
+courier\login\page.tsx      49 <input type="password" required value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="••••••••"
+                               />
+courier\login\page.tsx      51 <button type="submit" disabled={loading} className="w-full rounded-xl bg-red-600 px-6 py-4 font-bold text-white hover:bg-red-700 disabled:opacity-50">
+courier\register\page.tsx   42 <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+courier\register\page.tsx   45 <input type="text" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Nama sesuai KTP" />
+courier\register\page.tsx   49 <input type="email" required value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="email@example.com"
+                               />
+courier\register\page.tsx   53 <input type="password" required value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Minimal 8
+                               karakter" />
+courier\register\page.tsx   57 <input type="tel" required value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="08xxxxxxxxxx" />
+courier\register\page.tsx   61 <input type="text" required value={form.city} onChange={(e) => setForm({...form, city: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Kota Bogor" />
+courier\register\page.tsx   73 <input type="text" required value={form.plate_number} onChange={(e) => setForm({...form, plate_number: e.target.value})} className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="F 1234
+                               AB" />
+courier\register\page.tsx   75 <button type="submit" disabled={loading} className="w-full rounded-xl bg-red-600 px-6 py-4 font-bold text-white hover:bg-red-700 disabled:opacity-50">
+login\page.tsx              42 <form className="auth-form" onSubmit={onSubmit} noValidate>
+login\page.tsx              45 <input
+login\page.tsx              49 placeholder="nama@email.com"
+login\page.tsx              57 <input
+login\page.tsx              61 placeholder="Minimal 10 karakter"
+login\page.tsx              75 type="submit"
+register\page.tsx           81 <form className="auth-form" onSubmit={onSubmit} noValidate>
+register\page.tsx           84 <input
+register\page.tsx           88 placeholder="Nama lengkap Anda"
+register\page.tsx           97 <input
+register\page.tsx          101 placeholder="nama@email.com"
+register\page.tsx          109 <input
+register\page.tsx          113 placeholder="0812xxxxxxx"
+register\page.tsx          122 <input
+register\page.tsx          126 placeholder="Contoh: Toko Berkah Jaya"
+register\page.tsx          151 <input
+register\page.tsx          155 placeholder="Minimal 10 karakter"
+register\page.tsx          175 type="submit"
+
+
+
+========== 5. HALAMAN DI BAWAH 25 BARIS ==========
+
+Route                     File                              Lines
+-----                     ----                              -----
+/courier/routes/{routeId} courier\routes\[routeId]\page.tsx    10
+
+
+
+========== 6. STATUS GIT ==========
+MM next.config.ts
+ M tsconfig.tsbuildinfo
+?? next.config.ts.backup-20261021-213429
+
