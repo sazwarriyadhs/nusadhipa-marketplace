@@ -8,7 +8,6 @@ import {
   type BusinessInfo,
 } from "@/lib/marketplace-api";
 import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
-import { getHeroImage } from "@/lib/hero-images";
 import { StoreCatalog } from "@/components/store/StoreCatalog";
 import { FollowButton } from "@/components/store/FollowButton";
 import "./store-profile.css";
@@ -239,14 +238,24 @@ export default async function StoreProfilePage({ params }: PageProps) {
     new Set(products.map((p) => p.category_name).filter(Boolean)),
   ).slice(0, 6);
 
-  
-  const logoUrl = resolveImageUrl(business?.logo_url);
-// Default Tropis/Unggas
-else
-else
-const isVerified =
-    business?.verification_status?.toLowerCase() === "verified";
+  // ==========================================
+  // LOGIKA BANNER DINAMIS (Berdasarkan Slug & Nama)
+  // ==========================================
   const businessName = business?.business_name ?? "Toko";
+  const slugLower = slug.toLowerCase();
+  const nameLower = businessName.toLowerCase();
+
+  let bannerUrl = "/images/hero-banner.png"; // Default Tropis
+
+  if (slugLower.includes("digi") || nameLower.includes("digi") || nameLower.includes("media") || nameLower.includes("komunika")) {
+    bannerUrl = "/images/hero-digital-media.jpg";
+  } else if (slugLower.includes("florist") || nameLower.includes("florist") || nameLower.includes("bunga")) {
+    bannerUrl = "/images/hero-florist.jpg";
+  }
+
+  const logoUrl = resolveImageUrl(business?.logo_url);
+  const isVerified = business?.verification_status?.toLowerCase() === "verified";
+  // ==========================================
 
   return (
     <main className="nd-store-profile">
@@ -268,11 +277,7 @@ const isVerified =
             <div className="nd-hero__banner">
               <div
                 className="nd-hero__bg"
-                style={
-                  bannerUrl
-                    ? { backgroundImage: `url(${bannerUrl})` }
-                    : undefined
-                }
+                style={{ backgroundImage: `url(${bannerUrl})` }}
               />
               <div className="nd-hero__overlay" />
 
@@ -457,9 +462,3 @@ const isVerified =
     </main>
   );
 }
-
-
-
-
-
-
