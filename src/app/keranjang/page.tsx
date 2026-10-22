@@ -84,7 +84,7 @@ export default function KeranjangPage() {
                   <p className="cart-seller">{item.businessName}</p>
                   <p className="cart-variant">{item.variantName}</p>
                   <strong className="cart-unit-price">
-                    {rupiah(item.price)}
+                    {rupiah(item.price)}{item.sellingUnit === "kg" ? "/kg" : ""}
                   </strong>
 
                   <div className="cart-item-actions">
@@ -92,20 +92,20 @@ export default function KeranjangPage() {
                       <button
                         type="button"
                         aria-label={`Kurangi ${item.productName}`}
-                        disabled={item.quantity <= 1}
+                        disabled={item.quantity <= (item.minQty || 1)}
                         onClick={() =>
-                          setQuantity(item.key, item.quantity - 1)
+                          setQuantity(item.key, item.quantity - (item.step || 1))
                         }
                       >
                         −
                       </button>
-                      <span>{item.quantity}</span>
+                      <span>{Number(item.quantity.toFixed(3))} {item.sellingUnit || "unit"}</span>
                       <button
                         type="button"
                         aria-label={`Tambah ${item.productName}`}
                         disabled={item.quantity >= item.stock}
                         onClick={() =>
-                          setQuantity(item.key, item.quantity + 1)
+                          setQuantity(item.key, item.quantity + (item.step || 1))
                         }
                       >
                         +
@@ -121,7 +121,7 @@ export default function KeranjangPage() {
                     </button>
                   </div>
                   <p className="cart-stock-note">
-                    Maksimum stok tercatat: {item.stock}
+                    Maksimum stok tercatat: {item.stock} {item.sellingUnit || "unit"}
                   </p>
                 </div>
 
