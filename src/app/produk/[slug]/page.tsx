@@ -50,12 +50,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const fallbackImageUrl = getSauriImage(product.name);
   const imageUrl = originalImageUrl || fallbackImageUrl;
 
-  // Ambil harga & stok dari varian pertama (karena di ProductDetail min_price di-Omit)
+  // Harga publik menggunakan harga retail bila sudah ditetapkan.
   const firstVariant = product.variants?.[0];
-  const price = firstVariant
-    ? formatRupiah(firstVariant.price)
+  const retailPrice = firstVariant?.retail_price ?? firstVariant?.price;
+  const b2bPrice = firstVariant?.b2b_price;
+  const price = retailPrice != null
+    ? formatRupiah(retailPrice)
     : "Harga belum tersedia";
   const stock = firstVariant?.available_stock ?? 0;
+  const minRetailKg = firstVariant?.min_retail_kg;
+  const minB2bKg = firstVariant?.min_b2b_kg;
 
   return (
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
@@ -90,10 +94,22 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </h1>
           
           <p className="mt-4 text-3xl font-black text-red-600">{price}</p>
-          
-          {stock > 0 && (
-            <p className="mt-2 text-sm text-gray-600">Stok tersedia: <strong>{stock}</strong></p>
+          {firstVariant?.selling_unit === "kg" && (
+            <div className="mt-3 space-y-1 text-sm text-gray-600">
+              {minRetailKg != null && (
+                <p>Minimum pembelian retail: <strong>{Number(minRetailKg)} kg</strong></p>
+              )}
+              {b2bPrice != null && (
+                <p>Harga B2B: <strong>{formatRupiah(b2bPrice)}/kg</strong></p>
+              )}
+              {minB2bKg != null && (
+                <p>Minimum pembelian B2B: <strong>{Number(minB2bKg)} kg</strong></p>
+              )}
+            </div>
           )}
+          <p className="mt-2 text-sm text-gray-600">
+            Stok tersedia: <strong>{stock}</strong>{firstVariant?.selling_unit === "kg" ? " kg" : ""}
+          </p>
 
           {product.description && (
             <div className="mt-6 border-t border-gray-200 pt-6">
