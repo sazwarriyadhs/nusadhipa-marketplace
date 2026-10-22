@@ -267,3 +267,70 @@
     justify-content: center !important;
   }
 }
+/* ============================================================
+   FINAL POLISH: RAPIHIN POSISI TEKS & OVERLAY
+   ============================================================ */
+
+/* 1. Bikin Overlay Lebih Gelap di Kiri biar Teks Kebaca */
+.nd-hero__overlay {
+  background: linear-gradient(90deg, 
+    rgba(11, 15, 25, 0.95) 0%, 
+    rgba(11, 15, 25, 0.8) 40%, 
+    rgba(11, 15, 25, 0.2) 70%,
+    transparent 100%
+  ) !important;
+}
+
+/* 2. Posisi Teks Ditengah (Vertikal), bukan mentok bawah */
+.nd-hero__content {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important; /* Trik center vertikal */
+  bottom: auto !important;
+  left: 0 !important;
+  padding: 0 60px !important;
+  width: 100% !important;
+  max-width: 900px !important; /* Biar teks gak terlalu panjang */
+}
+
+/* 3. Spasi antar elemen teks biar gak dempet */
+.nd-hero__title {
+  margin-bottom: 16px !important;
+}
+.nd-hero__sub {
+  margin-bottom: 32px !important;
+}
+
+/* 4. Rapihin Stats Pill */
+.nd-hero__stats {
+  gap: 16px !important;
+}
+.nd-hero__stat {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+/* 5. Profile Card: Turunin sedikit & beri margin bottom biar gak nabrak statistik */
+.nd-profile-wrap {
+  margin-top: -40px !important; /* Dikurangi dari -60px biar gak terlalu naik */
+}
+.nd-profile {
+  padding: 32px !important;
+  /* Card ini udah rapi dari CSS sebelumnya, cuma kita pastiin aja */
+}
+
+/* Responsif untuk Mobile */
+@media (max-width: 768px) {
+  .nd-hero__banner {
+    height: 550px !important; /* Lebih tinggi di HP biar teks gak numpuk */
+  }
+  .nd-hero__content {
+    padding: 0 24px !important;
+    top: 40% !important; /* Agak ke atas di HP */
+  }
+  .nd-hero__title {
+    font-size: 32px !important;
+    line-height: 1.2 !important;
+  }
+}
