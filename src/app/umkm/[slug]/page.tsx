@@ -238,8 +238,23 @@ export default async function StoreProfilePage({ params }: PageProps) {
     new Set(products.map((p) => p.category_name).filter(Boolean)),
   ).slice(0, 6);
 
-  const bannerUrl = "/images/hero-banner.png";
+  
   const logoUrl = resolveImageUrl(business?.logo_url);
+
+  // Logika pintar: Tentukan banner berdasarkan nama toko / KBLI
+  const businessNameRaw = (business?.business_name || "").toLowerCase();
+  const businessDesc = (business?.description || "").toLowerCase();
+  const searchString = `${businessNameRaw} ${businessDesc}`;
+  
+  let bannerUrl = "/images/hero-banner.png"; // Default Tropis/Unggas
+
+  if (searchString.includes("florist") || searchString.includes("bunga") || searchString.includes("tanaman")) {
+    bannerUrl = "/images/hero-florist.jpg"; // Pakai gambar dari Gemini
+  } else if (searchString.includes("pet") || searchString.includes("kucing") || searchString.includes("anjing") || searchString.includes("hewan")) {
+    bannerUrl = "https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2000&auto=format&fit=crop";
+  } else if (searchString.includes("kopi") || searchString.includes("cafe") || searchString.includes("kuliner")) {
+    bannerUrl = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2000&auto=format&fit=crop";
+  }
 
   const isVerified =
     business?.verification_status?.toLowerCase() === "verified";
@@ -454,6 +469,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
     </main>
   );
 }
+
 
 
 
