@@ -56,7 +56,7 @@ function extractApiList<T>(response: unknown): T[] {
   return [];
 }
 
-/* ---------- Inline Icons ---------- */
+/* ---------- Icons ---------- */
 
 function IconPin(p: React.SVGProps<SVGSVGElement>) {
   return (
@@ -140,8 +140,6 @@ function IconTruck(p: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-/* ---------- Product Card ---------- */
-
 function ProductCard({ product }: { product: Product }) {
   const originalImageUrl = resolveImageUrl(product.image_url);
   const fallbackByProduct = getSauriImage(product.name);
@@ -163,14 +161,7 @@ function ProductCard({ product }: { product: Product }) {
           <span className="nd-product__cat">{product.category_name}</span>
         )}
         <div className="nd-product__quick">
-          <button
-            type="button"
-            aria-label="Simpan ke wishlist"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
+          <button type="button" aria-label="Wishlist" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.5-1.5 3-3.3 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7Z" />
             </svg>
@@ -202,8 +193,6 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-/* ---------- Page ---------- */
-
 export default async function StoreProfilePage({ params }: PageProps) {
   const { slug } = await params;
 
@@ -226,10 +215,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
     );
   }
 
-  const productsResult = await getProducts({
-    businessSlug: slug,
-    limit: 100,
-  }).catch(() => []);
+  const productsResult = await getProducts({ businessSlug: slug, limit: 100 }).catch(() => []);
 
   const business: BusinessInfo | null = businessResult;
   const products: Product[] = extractApiList<Product>(productsResult);
@@ -239,28 +225,48 @@ export default async function StoreProfilePage({ params }: PageProps) {
   ).slice(0, 6);
 
   // ==========================================
-  // LOGIKA BANNER DINAMIS (Berdasarkan Slug & Nama)
+  // MAPPING BANNER BERDASARKAN KBLI 2025
   // ==========================================
   const businessName = business?.business_name ?? "Toko";
-  const slugLower = slug.toLowerCase();
-  const nameLower = businessName.toLowerCase();
+  const kbliCode = business?.kbli_code ?? "";
+  const kbliName = (business?.kbli_name ?? "").toLowerCase();
 
-  let bannerUrl = "/images/hero-banner.png"; // Default Tropis
+  let bannerUrl = "/kategori/03-peternakan-daging-perikanan.png"; // Default
 
-  if (slugLower.includes("digi") || nameLower.includes("digi") || nameLower.includes("media") || nameLower.includes("komunika")) {
-    bannerUrl = "/images/hero-digital-media.jpg";
-  } else if (slugLower.includes("florist") || nameLower.includes("florist") || nameLower.includes("bunga")) {
-    bannerUrl = "/images/hero-florist.jpg";
+  if (kbliCode === "46322" || kbliCode === "46325") {
+    bannerUrl = "/kategori/03-peternakan-daging-perikanan.png";
+  } else if (kbliCode === "47761") {
+    bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
+  } else if (kbliCode === "62900" || kbliCode === "62010" || kbliCode === "62020") {
+    bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
+  } else if (kbliCode.startsWith("01") || kbliCode.startsWith("02") || kbliCode.startsWith("03") || kbliName.includes("pertanian")) {
+    bannerUrl = "/kategori/02-pertanian-hasil-bumi.png";
+  } else if (kbliCode.startsWith("10") || kbliCode.startsWith("11") || kbliCode.startsWith("12") || kbliCode.startsWith("56") || kbliName.includes("makanan") || kbliName.includes("minuman")) {
+    bannerUrl = "/kategori/01-makanan-minuman.png";
+  } else if (kbliCode.startsWith("46205") || kbliName.includes("petfood") || kbliName.includes("makanan hewan")) {
+    bannerUrl = "/kategori/04-petfood-kebutuhan-hewan.png";
+  } else if (kbliCode.startsWith("14") || kbliCode.startsWith("15") || kbliName.includes("fashion") || kbliName.includes("pakaian")) {
+    bannerUrl = "/kategori/05-fashion-aksesori.png";
+  } else if (kbliCode.startsWith("16") || kbliCode.startsWith("31") || kbliCode.startsWith("32") || kbliName.includes("kerajinan")) {
+    bannerUrl = "/kategori/06-kerajinan-produk-kreatif.png";
+  } else if (kbliCode.startsWith("96") || kbliName.includes("kecantikan") || kbliName.includes("kosmetik")) {
+    bannerUrl = "/kategori/08-kecantikan-perawatan-diri.png";
+  } else if (kbliName.includes("bunga") || kbliName.includes("florist") || kbliName.includes("tanaman hias")) {
+    bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
+  } else if (kbliCode.startsWith("26") || kbliCode.startsWith("27") || kbliName.includes("elektronik")) {
+    bannerUrl = "/kategori/10-elektronik-peralatan.png";
+  } else if (kbliCode.startsWith("62") || kbliCode.startsWith("63") || kbliCode.startsWith("69") || kbliCode.startsWith("70") || kbliCode.startsWith("73") || kbliName.includes("jasa") || kbliName.includes("bisnis") || kbliName.includes("teknologi")) {
+    bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
+  } else if (kbliCode.startsWith("46") || kbliCode.startsWith("47") || kbliName.includes("grosir") || kbliName.includes("b2b")) {
+    bannerUrl = "/kategori/12-industri-grosir-b2b.png";
   }
 
   const logoUrl = resolveImageUrl(business?.logo_url);
   const isVerified = business?.verification_status?.toLowerCase() === "verified";
-  // ==========================================
 
   return (
     <main className="nd-store-profile">
       <div className="nd-content">
-        {/* ================= BREADCRUMB ================= */}
         <Reveal>
           <nav className="nd-breadcrumb" aria-label="Navigasi">
             <Link href="/">Beranda</Link>
@@ -271,7 +277,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
           </nav>
         </Reveal>
 
-        {/* ================= HERO BANNER ================= */}
         <Reveal>
           <section className="nd-hero">
             <div className="nd-hero__banner">
@@ -326,7 +331,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
           </section>
         </Reveal>
 
-        {/* ================= PROFILE CARD (overlap) ================= */}
         <section className="nd-profile-wrap">
           <div className="nd-profile">
             <div className="nd-profile__logo">
@@ -394,10 +398,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
                   </a>
                 )}
                 {business?.phone && (
-                  <a
-                    href={`tel:${business.phone}`}
-                    className="nd-btn nd-btn--outline-red"
-                  >
+                  <a href={`tel:${business.phone}`} className="nd-btn nd-btn--outline-red">
                     <IconPhone /> Telepon
                   </a>
                 )}
@@ -407,7 +408,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ================= RINGKASAN ================= */}
         <Reveal delay={40}>
           <section className="nd-summary">
             <span className="nd-eyebrow">Ringkasan Toko</span>
@@ -450,7 +450,6 @@ export default async function StoreProfilePage({ params }: PageProps) {
           </section>
         </Reveal>
 
-        {/* ================= KATALOG ================= */}
         <Reveal delay={60}>
           <StoreCatalog
             products={products}
