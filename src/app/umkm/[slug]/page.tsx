@@ -8,6 +8,7 @@ import {
   type BusinessInfo,
 } from "@/lib/marketplace-api";
 import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
+import { getHeroImage } from "@/lib/hero-images";
 import { StoreCatalog } from "@/components/store/StoreCatalog";
 import { FollowButton } from "@/components/store/FollowButton";
 import "./store-profile.css";
@@ -240,23 +241,10 @@ export default async function StoreProfilePage({ params }: PageProps) {
 
   
   const logoUrl = resolveImageUrl(business?.logo_url);
-
-  // Logika pintar: Tentukan banner berdasarkan nama toko / KBLI
-  const businessNameRaw = (business?.business_name || "").toLowerCase();
-  const businessDesc = (business?.description || "").toLowerCase();
-  const searchString = `${businessNameRaw} ${businessDesc}`;
-  
-  let bannerUrl = "/images/hero-banner.png"; // Default Tropis/Unggas
-
-  if (searchString.includes("florist") || searchString.includes("bunga") || searchString.includes("tanaman")) {
-    bannerUrl = "/images/hero-florist.jpg"; // Pakai gambar dari Gemini
-  } else if (searchString.includes("pet") || searchString.includes("kucing") || searchString.includes("anjing") || searchString.includes("hewan")) {
-    bannerUrl = "https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2000&auto=format&fit=crop";
-  } else if (searchString.includes("kopi") || searchString.includes("cafe") || searchString.includes("kuliner")) {
-    bannerUrl = "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2000&auto=format&fit=crop";
-  }
-
-  const isVerified =
+// Default Tropis/Unggas
+else
+else
+const isVerified =
     business?.verification_status?.toLowerCase() === "verified";
   const businessName = business?.business_name ?? "Toko";
 
@@ -469,6 +457,7 @@ export default async function StoreProfilePage({ params }: PageProps) {
     </main>
   );
 }
+
 
 
 
