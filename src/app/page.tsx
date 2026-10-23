@@ -452,6 +452,8 @@ export default async function HomePage({ searchParams }: PageProps) {
   // Beranda hanya menampilkan 12 kategori induk; subkategori tetap tersedia di katalog/filter.
   const rootCategories = categories.filter((category) => category.parent_id == null);
   const displayCategories = rootCategories.length > 0 ? rootCategories : [];
+  // Chip kategori populer memakai kategori induk yang sama dengan grid beranda.
+  const popularCategories = rootCategories.slice(0, 6);
 
   /* Trust stats — pakai data semua produk */
   const totalProducts = allProducts.length;
