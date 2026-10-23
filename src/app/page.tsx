@@ -449,7 +449,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   const categoriesError = categoriesResult.status === "rejected";
   const productsError = productsResult.status === "rejected";
 
-  const displayCategories = categories.length > 0 ? categories : [];
+  // Beranda hanya menampilkan 12 kategori induk; subkategori tetap tersedia di katalog/filter.
+  const rootCategories = categories.filter((category) => category.parent_id == null);
+  const displayCategories = rootCategories.length > 0 ? rootCategories : [];
 
   /* Trust stats — pakai data semua produk */
   const totalProducts = allProducts.length;
