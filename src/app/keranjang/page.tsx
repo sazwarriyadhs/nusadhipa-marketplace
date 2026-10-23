@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/cart/CartProvider";
+import { formatStock } from "@/lib/format-stock";
 
 function rupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -121,7 +122,7 @@ export default function KeranjangPage() {
                     </button>
                   </div>
                   <p className="cart-stock-note">
-                    Maksimum stok tercatat: {item.stock}
+                    Maksimum stok tercatat: {formatStock(item.stock, item.stockUnit, item.stockUnit === "kg" ? "weight" : undefined)}
                   </p>
                 </div>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";
 import { getSauriImage } from "@/lib/sauri-images";
+import { formatStock } from "@/lib/format-stock";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +93,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <p className="mt-4 text-3xl font-black text-red-600">{price}</p>
           
           {stock > 0 && (
-            <p className="mt-2 text-sm text-gray-600">Stok tersedia: <strong>{stock}</strong></p>
+            <p className="mt-2 text-sm text-gray-600">Stok tersedia: <strong>{formatStock(stock, firstVariant?.selling_unit, firstVariant?.sales_mode)}</strong></p>
           )}
 
           {product.description && (

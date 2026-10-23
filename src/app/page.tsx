@@ -11,6 +11,7 @@ import {
   type Category,
   type Product,
 } from "@/lib/marketplace-api";
+import { formatStock } from "@/lib/format-stock";
 
 export const dynamic = "force-dynamic";
 
@@ -240,22 +241,17 @@ function getMarketEstimate(product: Product): { min: number; max: number } | nul
 function formatPriceRange(product: Product): string {
   const min = Number(product.min_price) || 0;
   const max = Number(product.max_price) || 0;
-  const isPhysical = product.product_type === "physical";
 
   if (min > 0) {
-    const per500 = isPhysical ? min / 2 : min;
-    const unit = isPhysical ? " / 500 gram" : "";
     if (max > 0 && max !== min) {
-      return `Mulai dari ${formatRupiah(per500)}${unit}`;
+      return `Mulai dari ${formatRupiah(min)}`;
     }
-    return `${formatRupiah(per500)}${unit}`;
+    return formatRupiah(min);
   }
 
   const estimate = getMarketEstimate(product);
-  if (estimate) {
-    const per500 = isPhysical ? estimate.min / 2 : estimate.min;
-    const per500Max = isPhysical ? estimate.max / 2 : estimate.max;
-    return `Estimasi ${formatRupiah(per500)} – ${formatRupiah(per500Max)} / 500 gram`;
+  if (estimate && estimate.min > 0) {
+    return `Estimasi ${formatRupiah(estimate.min)} – ${formatRupiah(estimate.max)}`;
   }
 
   return "Harga menyusul";
@@ -308,7 +304,7 @@ function ProductCard({ product }: { product: Product }) {
 
           {hasStock ? (
             <span className="nd-badge nd-badge--stock">
-              Stok {product.available_stock}
+              Stok {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}
             </span>
           ) : null}
         </div>
@@ -316,39 +312,34 @@ function ProductCard({ product }: { product: Product }) {
         <div className="nd-product-card__body">
           <h3>{product.name}</h3>
 
-          {product.min_retail_price != null || product.min_b2b_price != null ? (
+          {Number(product.min_retail_price) > 0 || Number(product.min_b2b_price) > 0 ? (
             <div className="nd-product-card__pricing">
-              {product.min_retail_price != null ? (
+              {Number(product.min_retail_price) > 0 ? (
                 <div className="nd-price-block nd-price-block--retail">
                   <span className="nd-price-label">🛒 Eceran</span>
-                  <span className="nd-price-value">
-                    {formatRupiah(product.min_retail_price)}
-                  </span>
-                  <span className="nd-price-unit">/kg</span>
+                  <span className="nd-price-value">{formatRupiah(Number(product.min_retail_price))}</span>
+                  {product.sales_mode === "weight" && product.selling_unit === "kg" ? (
+                    <span className="nd-price-unit">/kg</span>
+                  ) : null}
                 </div>
               ) : null}
-
-              {product.min_b2b_price != null ? (
+              {Number(product.min_b2b_price) > 0 ? (
                 <div className="nd-price-block nd-price-block--b2b">
                   <span className="nd-price-label">🏭 Grosir</span>
-                  <span className="nd-price-value nd-price-value--b2b">
-                    {formatRupiah(product.min_b2b_price)}
-                  </span>
-                  <span className="nd-price-unit">/kg</span>
-                  {product.min_b2b_kg ? (
-                    <span className="nd-price-min">
-                      min {product.min_b2b_kg}kg
-                    </span>
+                  <span className="nd-price-value nd-price-value--b2b">{formatRupiah(Number(product.min_b2b_price))}</span>
+                  {product.sales_mode === "weight" && product.selling_unit === "kg" ? (
+                    <>
+                      <span className="nd-price-unit">/kg</span>
+                      {Number(product.min_b2b_kg) > 0 ? (
+                        <span className="nd-price-min">min {product.min_b2b_kg}kg</span>
+                      ) : null}
+                    </>
                   ) : null}
                 </div>
               ) : null}
             </div>
           ) : (
-            <p
-              className={`nd-product-card__price${
-                product.min_price == null ? " is-unset" : ""
-              }`}
-            >
+            <p className={`nd-product-card__price${Number(product.min_price) <= 0 ? " is-unset" : ""}`}>
               {price}
             </p>
           )}
@@ -361,7 +352,7 @@ function ProductCard({ product }: { product: Product }) {
 
           {product.available_stock != null ? (
             <p className="nd-product-card__stock">
-              Stok tersedia: {product.available_stock}
+              Stok tersedia: {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}
             </p>
           ) : null}
         </div>

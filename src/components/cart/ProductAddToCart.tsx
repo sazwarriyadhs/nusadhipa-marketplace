@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import type { ProductVariant } from "@/lib/marketplace-api";
+import { formatStock } from "@/lib/format-stock";
 
 type Props = {
   productSlug: string;
@@ -65,6 +66,7 @@ export default function ProductAddToCart({
       variantName: selectedVariant.variant_name,
       price,
       stock,
+      stockUnit: selectedVariant.selling_unit ?? (selectedVariant.sales_mode === "weight" ? "kg" : "unit"),
       imageUrl,
       quantity,
     });
@@ -99,7 +101,7 @@ export default function ProductAddToCart({
             {availableVariants.map((variant) => (
               <option key={variant.id} value={variant.id}>
                 {variant.variant_name} — {rupiah(Number(variant.price))} — Stok{" "}
-                {variant.available_stock}
+                {formatStock(variant.available_stock, variant.selling_unit, variant.sales_mode)}
               </option>
             ))}
           </select>

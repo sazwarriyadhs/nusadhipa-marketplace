@@ -20,6 +20,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   stock: number;
+  stockUnit?: string | null;
   imageUrl: string | null;
 };
 
