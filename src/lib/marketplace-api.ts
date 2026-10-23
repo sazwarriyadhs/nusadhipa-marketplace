@@ -34,6 +34,8 @@ export interface Product {
   min_b2b_price?: string | number | null;
   max_b2b_price?: string | number | null;
   min_b2b_kg?: string | number | null;
+  selling_unit?: string | null;
+  sales_mode?: string | null;
   available_stock: number;
   image_url: string | null;
 }

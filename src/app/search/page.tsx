@@ -7,6 +7,7 @@ import {
   type Category,
   type Product,
 } from "@/lib/marketplace-api";
+import { formatStock } from "@/lib/format-stock";
 import { getSauriImage } from "@/lib/sauri-images";
 
 export const dynamic = "force-dynamic";
@@ -149,7 +150,7 @@ function ProductCard({ product }: { product: Product }) {
         <p style={{fontSize: "18px", fontWeight: "900", color: "#dc2626", marginTop: "8px"}}>{price}</p>
         {product.available_stock != null && (
           <p style={{fontSize: "12px", color: "#6b7280", marginTop: "4px"}}>
-            Stok: {product.available_stock}
+            Stok: {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}
           </p>
         )}
       </div>

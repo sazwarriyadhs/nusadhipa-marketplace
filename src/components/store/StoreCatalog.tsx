@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { formatRupiah, type Product } from "@/lib/marketplace-api";
 import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
+import { formatStock } from "@/lib/format-stock";
 
 type Props = {
   products: Product[];
@@ -154,7 +155,7 @@ export function StoreCatalog({ products, categories, businessName }: Props) {
                       <p className="nd-store-product-card__price">{price}</p>
                       {product.available_stock != null && (
                         <p className="nd-store-product-card__stock">
-                          Stok: {product.available_stock}
+                          Stok: {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}
                         </p>
                       )}
                       <Link

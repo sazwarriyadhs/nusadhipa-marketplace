@@ -6,6 +6,7 @@ import {
   formatRupiah,
   type Product,
 } from "@/lib/marketplace-api";
+import { formatStock } from "@/lib/format-stock";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,7 @@ function ProductCard({ product }: { product: Product }) {
 
           {hasStock ? (
             <span className="nd-badge nd-badge--stock">
-              Stok {product.available_stock}
+              Stok {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}
             </span>
           ) : null}
         </div>

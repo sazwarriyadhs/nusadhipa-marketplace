@@ -7,6 +7,7 @@ import {
   type Product,
   type BusinessInfo,
 } from "@/lib/marketplace-api";
+import { formatStock } from "@/lib/format-stock";
 import { getSauriImage, getCategoryImage } from "@/lib/sauri-images";
 import { StoreCatalog } from "@/components/store/StoreCatalog";
 import { FollowButton } from "@/components/store/FollowButton";
@@ -183,7 +184,7 @@ function ProductCard({ product }: { product: Product }) {
           <IconStarFilled />
           <b>Baru</b>
           {product.available_stock != null && (
-            <span>· Stok {product.available_stock}</span>
+            <span>· Stok {formatStock(product.available_stock, product.selling_unit, product.sales_mode)}</span>
           )}
         </div>
         <div className="nd-product__price">{price}</div>
