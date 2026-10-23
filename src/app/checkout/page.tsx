@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
 import { API_BASE } from "@/lib/marketplace-api";
 
-const MIN_ORDER_KG = 10;
 const FREE_RADIUS_KM = 5;
 const BASE_SHIPPING = 5000;
 const COST_PER_KM = 2000;
@@ -45,11 +44,8 @@ export default function CheckoutPage() {
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
-  const meetsMinOrder = totalWeight >= MIN_ORDER_KG;
-
   const shipping =
-    distanceKm <= FREE_RADIUS_KM
+    distanceKm < FREE_RADIUS_KM
       ? 0
       : Math.round(BASE_SHIPPING + (distanceKm - FREE_RADIUS_KM) * COST_PER_KM);
 
@@ -62,11 +58,6 @@ export default function CheckoutPage() {
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     setMessage("");
-
-    if (!meetsMinOrder) {
-      setMessage(`Minimal order ${MIN_ORDER_KG} kg. Kamu baru ${totalWeight} kg.`);
-      return;
-    }
 
     if (!form.name || !form.phone || !form.address || !form.city) {
       setMessage("Lengkapi nama, telepon, alamat, dan kota.");
@@ -314,11 +305,6 @@ export default function CheckoutPage() {
           </div>
 
           <div className="checkout-line">
-            <span>Berat total</span>
-            <span>{totalWeight} kg</span>
-          </div>
-
-          <div className="checkout-line">
             <span>Ongkir ({COURIERS.find((c) => c.id === courier)?.name})</span>
             <span>
               {shipping === 0 ? (
@@ -336,12 +322,6 @@ export default function CheckoutPage() {
             <strong>{rupiah(grandTotal)}</strong>
           </div>
 
-          {!meetsMinOrder && (
-            <div className="checkout-warning">
-              ⚠️ Minimal order {MIN_ORDER_KG} kg. Kamu baru {totalWeight} kg.
-            </div>
-          )}
-
           {message && (
             <div className={`checkout-message${success ? " is-success" : ""}`}>
               {message}
@@ -351,7 +331,7 @@ export default function CheckoutPage() {
           <button
             type="button"
             onClick={() => handleSubmit()}
-            disabled={submitting || !meetsMinOrder || success}
+            disabled={submitting || success}
             className="checkout-submit"
           >
             {submitting ? "Memproses..." : success ? "✅ Berhasil!" : "Buat Pesanan →"}
