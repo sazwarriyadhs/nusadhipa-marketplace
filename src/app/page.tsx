@@ -359,7 +359,7 @@ function ProductCard({ product }: { product: Product }) {
                   <span className="nd-price-value nd-price-value--b2b">
                     {formatRupiah(product.min_b2b_price)}
                   </span>
-                  <span className="nd-price-unit">/kg</span>
+                  <span className="nd-price-unit">{unitLabel}</span>
                   {isKgBased && product.min_b2b_kg ? (
                     <span className="nd-price-min">
                       min {product.min_b2b_kg}kg
@@ -384,7 +384,7 @@ function ProductCard({ product }: { product: Product }) {
             </p>
           ) : null}
 
-          {product.available_stock != null ? (
+          {hasStock ? (
             <p className="nd-product-card__stock">
               Stok tersedia
             </p>
