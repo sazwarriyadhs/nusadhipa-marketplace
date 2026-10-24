@@ -87,9 +87,9 @@ export function TrustStats({
   totalProducts: number;
   totalSellers: number;
 }) {
-  /* Fallback biar tidak 0-0 terus saat API kosong */
-  const products = totalProducts > 0 ? totalProducts : 100;
-  const sellers = totalSellers > 0 ? totalSellers : 25;
+  /* Jangan menampilkan angka katalog buatan saat API belum memiliki data. */
+  const products = Math.max(0, totalProducts);
+  const sellers = Math.max(0, totalSellers);
 
   return (
     <section className="nd-trust-row" aria-label="Statistik marketplace">

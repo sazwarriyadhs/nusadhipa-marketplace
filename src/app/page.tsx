@@ -6,6 +6,7 @@ import { TrustStats } from "@/components/home/TrustStats";
 import { SearchBar } from "@/components/home/SearchBar";
 import {
   formatRupiah,
+  getBusinesses,
   getCategories,
   getProducts,
   type Category,
@@ -282,13 +283,37 @@ function getCategoryFallbackImage(categorySlug: string): string {
 
 // ============================================================
 
+function getPriceUnitLabel(unit: string | null | undefined): string {
+  const normalized = (unit ?? "unit").trim().toLowerCase();
+  const labels: Record<string, string> = {
+    kg: "/kg",
+    gram: "/gram",
+    g: "/gram",
+    unit: "/unit",
+    pcs: "/pcs",
+    pc: "/pcs",
+    piece: "/unit",
+    pieces: "/unit",
+    package: "/paket",
+    pack: "/paket",
+    paket: "/paket",
+    liter: "/liter",
+    l: "/liter",
+    meter: "/meter",
+    m: "/meter",
+  };
+  return labels[normalized] ?? `/${normalized || "unit"}`;
+}
+
 function ProductCard({ product }: { product: Product }) {
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
   const price = formatPriceRange(product);
+  const unitLabel = getPriceUnitLabel(product.selling_unit);
+  const isKgBased = (product.selling_unit ?? "").trim().toLowerCase() === "kg";
 
   const hasStock =
-    product.available_stock != null && product.available_stock > 0;
+    product.available_stock != null && Number(product.available_stock) > 0;
 
   return (
     <article className="nd-product-card">
@@ -308,7 +333,7 @@ function ProductCard({ product }: { product: Product }) {
 
           {hasStock ? (
             <span className="nd-badge nd-badge--stock">
-              Stok {product.available_stock}
+              Tersedia
             </span>
           ) : null}
         </div>
@@ -324,7 +349,7 @@ function ProductCard({ product }: { product: Product }) {
                   <span className="nd-price-value">
                     {formatRupiah(product.min_retail_price)}
                   </span>
-                  <span className="nd-price-unit">/kg</span>
+                  <span className="nd-price-unit">{unitLabel}</span>
                 </div>
               ) : null}
 
@@ -334,8 +359,8 @@ function ProductCard({ product }: { product: Product }) {
                   <span className="nd-price-value nd-price-value--b2b">
                     {formatRupiah(product.min_b2b_price)}
                   </span>
-                  <span className="nd-price-unit">/kg</span>
-                  {product.min_b2b_kg ? (
+                  <span className="nd-price-unit">{unitLabel}</span>
+                  {isKgBased && product.min_b2b_kg ? (
                     <span className="nd-price-min">
                       min {product.min_b2b_kg}kg
                     </span>
@@ -359,9 +384,9 @@ function ProductCard({ product }: { product: Product }) {
             </p>
           ) : null}
 
-          {product.available_stock != null ? (
+          {hasStock ? (
             <p className="nd-product-card__stock">
-              Stok tersedia: {product.available_stock}
+              Stok tersedia
             </p>
           ) : null}
         </div>
@@ -416,7 +441,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   const selectedCategory = params.category?.trim() ?? "";
 
   /* Fetch paralel + aman kalau salah satu gagal */
-  const [categoriesResult, productsResult, allProductsResult] =
+  const [categoriesResult, productsResult, allProductsResult, businessesResult] =
     await Promise.allSettled([
       getCategories(),
       // Fetch 8 untuk display produk pilihan
@@ -425,8 +450,9 @@ export default async function HomePage({ searchParams }: PageProps) {
         category: selectedCategory || undefined,
         limit: 8,
       }),
-      // Fetch 100 untuk hitung total (counter statistik)
+      // Pagination.total adalah jumlah katalog, bukan jumlah item pada satu halaman.
       getProducts({ limit: 100 }),
+      getBusinesses(),
     ]);
 
   const categories: Category[] =
@@ -451,11 +477,16 @@ export default async function HomePage({ searchParams }: PageProps) {
   const popularCategories = categories.slice(0, 6);
   const displayCategories = categories.length > 0 ? categories : [];
 
-  /* Trust stats — pakai data semua produk */
-  const totalProducts = allProducts.length;
-  const totalSellers = new Set(
-    allProducts.map((p) => p.business_name).filter(Boolean),
-  ).size;
+  /* Statistik menggunakan total katalog API, bukan jumlah baris di satu halaman. */
+  const totalProducts =
+    allProductsResult.status === "fulfilled"
+      ? Number(allProductsResult.value.pagination?.total ?? allProducts.length)
+      : allProducts.length;
+  const businesses =
+    businessesResult.status === "fulfilled" ? businessesResult.value : [];
+  const totalSellers =
+    businesses.length ||
+    new Set(allProducts.map((p) => p.business_name).filter(Boolean)).size;
 
   return (
     <main className="nd-marketplace">
