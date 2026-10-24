@@ -286,6 +286,9 @@ function ProductCard({ product }: { product: Product }) {
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
   const price = formatPriceRange(product);
+  // Fajar Florist menjual papan/produk custom per item, bukan otomatis per kg.
+  // Jangan tampilkan harga B2B pada kartu tenant ini.
+  const isFajarFlorist = product.business_slug === "fajar-florist";
 
   const hasStock =
     product.available_stock != null && product.available_stock > 0;
@@ -316,7 +319,20 @@ function ProductCard({ product }: { product: Product }) {
         <div className="nd-product-card__body">
           <h3>{product.name}</h3>
 
-          {product.min_retail_price != null || product.min_b2b_price != null ? (
+          {isFajarFlorist ? (
+            product.min_retail_price != null ? (
+              <div className="nd-product-card__pricing nd-product-card__pricing--florist">
+                <div className="nd-price-block nd-price-block--retail">
+                  <span className="nd-price-label">Harga</span>
+                  <span className="nd-price-value">
+                    {formatRupiah(product.min_retail_price)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="nd-product-card__price is-unset">Harga menyusul</p>
+            )
+          ) : product.min_retail_price != null || product.min_b2b_price != null ? (
             <div className="nd-product-card__pricing">
               {product.min_retail_price != null ? (
                 <div className="nd-price-block nd-price-block--retail">
