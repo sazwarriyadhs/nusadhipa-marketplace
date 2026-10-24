@@ -8,6 +8,7 @@ import {
   type Product,
 } from "@/lib/marketplace-api";
 import { getSauriImage } from "@/lib/sauri-images";
+import ProductImage from "@/components/products/ProductImage";
 
 export const dynamic = "force-dynamic";
 
@@ -119,25 +120,23 @@ function ProductCard({ product }: { product: Product }) {
 
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
+  const minPrice = product.min_retail_price ?? product.min_price;
+  const maxPrice = product.max_retail_price ?? product.max_price;
   const price =
-    product.min_price == null
+    minPrice == null
       ? "Harga belum tersedia"
-      : product.max_price != null && product.max_price !== product.min_price
-        ? `${formatRupiah(product.min_price)} - ${formatRupiah(product.max_price)}`
-        : formatRupiah(product.min_price);
+      : maxPrice != null && Number(maxPrice) !== Number(minPrice)
+        ? `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}`
+        : formatRupiah(minPrice);
 
   return (
     <Link href={href} style={{display: "block", overflow: "hidden", borderRadius: "12px", border: "1px solid #e5e7eb", background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,0.05)"}}>
       <div style={{position: "relative", width: "100%", height: "200px", overflow: "hidden", background: "#f3f4f6"}}>
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={product.name} style={{width: "100%", height: "200px", objectFit: "cover", display: "block"}} />
-        ) : (
-          <div className="nd-store-product-card__empty">
-            <span aria-hidden="true">{"\uD83D\uDECD\uFE0F"}</span>
-            <small>Foto belum tersedia</small>
-          </div>
-        )}
+        <ProductImage
+          src={originalImageUrl}
+          fallbackSrc={fallbackByProduct}
+          alt={product.name}
+        />
         {product.category_name && (
           <span className="absolute top-2 left-2 rounded-md bg-white/90 px-2 py-1 text-[10px] font-bold text-red-600">
             {product.category_name}
@@ -163,28 +162,27 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const currentPage = Number(page || 1);
 
   const categoriesResult = await getCategories().catch(() => []);
-  const productsResult = await getProducts({
-    q: q || undefined,
-    category: category || undefined,
-    page: 1, // SELALU page 1 biar dapet semua produk
-    limit: 500,
-  }).catch(() => ({ data: [] }));
+  const [categoryProductsResult, productsResult] = await Promise.all([
+    getProducts({ q: q || undefined, category: category || undefined, page: 1, limit: 1000 })
+      .catch(() => ({ data: [] })),
+    getProducts({ q: q || undefined, category: category || undefined, page: currentPage, limit: 26 })
+      .catch(() => ({ data: [], pagination: undefined })),
+  ]);
 
   const allCategories: Category[] = Array.isArray(categoriesResult) ? categoriesResult : [];
-  const allProducts: Product[] = productsResult?.data || [];
-  
-  // Filter: cuma kategori utama yang BENERAN punya produk
+  const allProducts: Product[] = categoryProductsResult?.data || [];
+
+  // Tampilkan kategori yang memiliki produk sesuai pencarian/filter.
   const categorySlugsWithProducts = new Set(allProducts.map((p) => p.category_slug));
   const categories = allCategories.filter(
     (cat) => cat.parent_id === null && categorySlugsWithProducts.has(cat.slug)
   );
-    const finalProducts: Product[] = allProducts;
 
-  // Pagination: 20 produk per halaman
+  // Gunakan pagination API agar katalog tidak terpotong di browser.
   const PAGE_SIZE = 26;
-  const totalPages = Math.ceil(finalProducts.length / PAGE_SIZE);
-  const startIdx = (currentPage - 1) * PAGE_SIZE;
-  const products: Product[] = finalProducts.slice(startIdx, startIdx + PAGE_SIZE);
+  const products: Product[] = productsResult?.data || [];
+  const totalPages = productsResult?.pagination?.total_pages
+    ?? Math.ceil(allProducts.length / PAGE_SIZE);
 
   return (
     <main className="nd-marketplace">

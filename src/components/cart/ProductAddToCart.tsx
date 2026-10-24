@@ -50,10 +50,19 @@ export default function ProductAddToCart({
     }
 
     const stock = Number(selectedVariant.available_stock);
-    const price = Number(selectedVariant.price);
+    const unit = selectedVariant.selling_unit || (selectedVariant.sales_mode === "weight" ? "kg" : "unit");
+    const isWeight = unit === "kg";
+    const minQty = isWeight ? Number(selectedVariant.min_retail_kg ?? 0.5) : 1;
+    const step = isWeight ? Number(selectedVariant.retail_step_kg ?? 0.5) : 1;
+    const price = Number(selectedVariant.retail_price ?? selectedVariant.price);
 
     if (!Number.isFinite(price) || price < 0 || stock < 1) {
       setMessage("Harga atau stok produk tidak valid.");
+      return;
+    }
+
+    if (quantity < minQty || quantity > stock || Math.abs(quantity / step - Math.round(quantity / step)) > 1e-8) {
+      setMessage(`Jumlah harus minimal ${minQty} ${unit} dan mengikuti kelipatan ${step} ${unit}.`);
       return;
     }
 
@@ -67,6 +76,9 @@ export default function ProductAddToCart({
       stock,
       imageUrl,
       quantity,
+      sellingUnit: unit,
+      minQty,
+      step,
     });
 
     setMessage("Produk ditambahkan ke keranjang.");
@@ -111,15 +123,16 @@ export default function ProductAddToCart({
           )}
 
           <label className="product-purchase-label" htmlFor="product-quantity">
-            Jumlah
+            Jumlah ({selectedVariant.selling_unit || (selectedVariant.sales_mode === "weight" ? "kg" : "unit")})
           </label>
 
           <input
             id="product-quantity"
             className="product-quantity-input"
             type="number"
-            min={1}
+            min={selectedVariant ? (selectedVariant.selling_unit === "kg" || selectedVariant.sales_mode === "weight" ? Number(selectedVariant.min_retail_kg ?? 0.5) : 1) : 1}
             max={selectedVariant?.available_stock ?? 1}
+            step={selectedVariant ? (selectedVariant.selling_unit === "kg" || selectedVariant.sales_mode === "weight" ? Number(selectedVariant.retail_step_kg ?? 0.5) : 1) : 1}
             value={quantity}
             onChange={(event) => {
               const next = Number(event.target.value);

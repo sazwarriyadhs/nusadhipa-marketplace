@@ -21,6 +21,9 @@ export type CartItem = {
   quantity: number;
   stock: number;
   imageUrl: string | null;
+  sellingUnit: string;
+  minQty: number;
+  step: number;
 };
 
 type AddCartItem = Omit<CartItem, "key" | "quantity"> & {
@@ -79,10 +82,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!Number.isFinite(item.stock) || item.stock < 1) return;
 
     const key = `${item.productSlug}:${item.variantId}`;
-    const requestedQuantity = Math.max(
-      1,
-      Math.floor(item.quantity ?? 1),
-    );
+    const step = Number.isFinite(item.step) && item.step > 0 ? item.step : 1;
+    const minQty = Number.isFinite(item.minQty) && item.minQty > 0 ? item.minQty : step;
+    const rawQuantity = Math.max(minQty, item.quantity ?? minQty);
+    const requestedQuantity = Math.round(rawQuantity / step) * step;
 
     setItems((current) => {
       const existing = current.find((entry) => entry.key === key);
@@ -95,7 +98,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 stock: item.stock,
                 quantity: Math.min(
                   item.stock,
-                  entry.quantity + requestedQuantity,
+                  Math.round((entry.quantity + requestedQuantity) / step) * step,
                 ),
               }
             : entry,
@@ -117,17 +120,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!Number.isFinite(quantity)) return;
 
     setItems((current) =>
-      current.map((item) =>
-        item.key === key
-          ? {
-              ...item,
-              quantity: Math.max(
-                1,
-                Math.min(item.stock, Math.floor(quantity)),
-              ),
-            }
-          : item,
-      ),
+      current.map((item) => {
+        if (item.key !== key) return item;
+        const step = item.step > 0 ? item.step : 1;
+        const minQty = item.minQty > 0 ? item.minQty : step;
+        const stepped = Math.round(quantity / step) * step;
+        const bounded = Math.max(minQty, Math.min(item.stock, stepped));
+        return { ...item, quantity: Number(bounded.toFixed(3)) };
+      }),
     );
   }, []);
 

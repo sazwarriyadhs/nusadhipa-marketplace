@@ -419,14 +419,15 @@ export default async function HomePage({ searchParams }: PageProps) {
   const [categoriesResult, productsResult, allProductsResult] =
     await Promise.allSettled([
       getCategories(),
-      // Fetch 8 untuk display produk pilihan
+      // Ambil pool lebih besar agar beranda tidak hanya menampilkan satu tenant.
       getProducts({
         q: query || undefined,
         category: selectedCategory || undefined,
-        limit: 8,
+        page: 1,
+        limit: 100,
       }),
-      // Fetch 100 untuk hitung total (counter statistik)
-      getProducts({ limit: 100 }),
+      // Fetch pool produk untuk statistik dan kurasi beranda.
+      getProducts({ page: 1, limit: 250 }),
     ]);
 
   const categories: Category[] =
@@ -448,8 +449,11 @@ export default async function HomePage({ searchParams }: PageProps) {
   const categoriesError = categoriesResult.status === "rejected";
   const productsError = productsResult.status === "rejected";
 
-  const popularCategories = categories.slice(0, 6);
-  const displayCategories = categories.length > 0 ? categories : [];
+  // Beranda hanya menampilkan 12 kategori induk; subkategori tetap tersedia di katalog/filter.
+  const rootCategories = categories.filter((category) => category.parent_id == null);
+  const displayCategories = rootCategories.length > 0 ? rootCategories : [];
+  // Chip kategori populer memakai kategori induk yang sama dengan grid beranda.
+  const popularCategories = rootCategories.slice(0, 6);
 
   /* Trust stats — pakai data semua produk */
   const totalProducts = allProducts.length;
@@ -558,7 +562,7 @@ export default async function HomePage({ searchParams }: PageProps) {
               </div>
 
               <div className="nd-cat-grid">
-                {displayCategories.slice(0, 8).map((category) => {
+                {displayCategories.slice(0, 12).map((category) => {
                   const visual = getCategoryVisual(category);
 
                   return (
@@ -709,7 +713,23 @@ export default async function HomePage({ searchParams }: PageProps) {
               />
             ) : (
               <div className="nd-product-grid">
-                {products.slice(0, 8).map((product, index) => (
+                {(() => {
+                  // Rotasi antartenant supaya produk satu toko tidak mendominasi beranda.
+                  const grouped = new Map<string, Product[]>();
+                  for (const product of products) {
+                    const seller = product.business_slug || product.business_name || "tenant";
+                    const bucket = grouped.get(seller) || [];
+                    bucket.push(product);
+                    grouped.set(seller, bucket);
+                  }
+                  const diversified: Product[] = [];
+                  const buckets = Array.from(grouped.values());
+                  while (diversified.length < 8 && buckets.some((bucket) => bucket.length)) {
+                    for (const bucket of buckets) {
+                      if (bucket.length && diversified.length < 8) diversified.push(bucket.shift()!);
+                    }
+                  }
+                  return diversified.map((product, index) => (
                   <ProductCard
                     key={
                       product.public_id ??
@@ -718,7 +738,8 @@ export default async function HomePage({ searchParams }: PageProps) {
                     }
                     product={product}
                   />
-                ))}
+                  ));
+                })()}
               </div>
             )}
           </section>
