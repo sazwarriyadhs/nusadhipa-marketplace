@@ -123,7 +123,7 @@ export default function ProductAddToCart({
           )}
 
           <label className="product-purchase-label" htmlFor="product-quantity">
-            Jumlah ({selectedVariant.selling_unit || (selectedVariant.sales_mode === "weight" ? "kg" : "unit")})
+            Jumlah ({selectedVariant?.selling_unit || (selectedVariant?.sales_mode === "weight" ? "kg" : "unit")})
           </label>
 
           <input
@@ -140,7 +140,7 @@ export default function ProductAddToCart({
 
               setQuantity(
                 Number.isFinite(next)
-                  ? Math.max(1, Math.min(max, Math.floor(next)))
+                  ? Math.max(0.01, Math.min(max, next))
                   : 1,
               );
               setMessage("");
