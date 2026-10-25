@@ -1,14 +1,11 @@
 "use client";
 
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+  createContext, useCallback, useContext, useEffect, useMemo, useState,
   type ReactNode,
 } from "react";
+
+export type SellingMode = "retail" | "b2b" | "package";
 
 export type CartItem = {
   key: string;
@@ -22,6 +19,9 @@ export type CartItem = {
   stock: number;
   stockUnit?: string | null;
   imageUrl: string | null;
+  sellingMode: SellingMode;
+  quantityStep: number;
+  minQuantity: number;
 };
 
 type AddCartItem = Omit<CartItem, "key" | "quantity"> & {
@@ -33,7 +33,7 @@ type CartContextValue = {
   hydrated: boolean;
   count: number;
   subtotal: number;
-  addItem: (item: AddCartItem) => void;
+  addItem: (item: AddCartItem) => boolean;
   setQuantity: (key: string, quantity: number) => void;
   removeItem: (key: string) => void;
   clearCart: () => void;
@@ -41,6 +41,32 @@ type CartContextValue = {
 
 const STORAGE_KEY = "nusadhipa-cart-v1";
 const CartContext = createContext<CartContextValue | null>(null);
+
+function normalizeItem(value: any): CartItem | null {
+  if (
+    !value || typeof value.key !== "string" ||
+    typeof value.productSlug !== "string" ||
+    !Number.isFinite(value.variantId) ||
+    !Number.isFinite(value.price) ||
+    !Number.isFinite(value.quantity) ||
+    !Number.isFinite(value.stock)
+  ) return null;
+
+  const sellingMode: SellingMode =
+    value.sellingMode === "b2b" || value.sellingMode === "package"
+      ? value.sellingMode : "retail";
+
+  return {
+    ...value,
+    sellingMode,
+    quantityStep: Number(value.quantityStep) > 0 ? Number(value.quantityStep) : 1,
+    minQuantity: Number(value.minQuantity) > 0 ? Number(value.minQuantity) : 1,
+  } as CartItem;
+}
+
+function validStep(quantity: number, step: number) {
+  return Math.abs(quantity / step - Math.round(quantity / step)) < 1e-8;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -52,14 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (stored) {
         const parsed: unknown = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          setItems(parsed.filter((item) =>
-            item &&
-            typeof item.key === "string" &&
-            typeof item.productSlug === "string" &&
-            typeof item.variantId === "number" &&
-            typeof item.price === "number" &&
-            typeof item.quantity === "number"
-          ));
+          setItems(parsed.map(normalizeItem).filter((x): x is CartItem => x !== null));
         }
       }
     } catch {
@@ -70,70 +89,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (hydrated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
+    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addItem = useCallback((item: AddCartItem) => {
-    if (!Number.isFinite(item.price) || item.price < 0) return;
-    if (!Number.isFinite(item.stock) || item.stock < 1) return;
+  const addItem = useCallback((item: AddCartItem): boolean => {
+    const step = item.quantityStep > 0 ? item.quantityStep : 1;
+    const min = item.minQuantity > 0 ? item.minQuantity : 1;
+    const qty = item.quantity ?? min;
 
-    const key = `${item.productSlug}:${item.variantId}`;
-    const requestedQuantity = Math.max(
-      1,
-      Math.floor(item.quantity ?? 1),
-    );
+    if (
+      !Number.isFinite(item.price) || item.price <= 0 ||
+      !Number.isFinite(item.stock) || item.stock < 0 ||
+      !Number.isFinite(qty) || qty < min || qty > item.stock ||
+      !validStep(qty, step)
+    ) return false;
 
-    setItems((current) => {
-      const existing = current.find((entry) => entry.key === key);
+    const key = `${item.productSlug}:${item.variantId}:${item.sellingMode}`;
+    const existing = items.find(entry => entry.key === key);
 
-      if (existing) {
-        return current.map((entry) =>
-          entry.key === key
-            ? {
-                ...entry,
-                stock: item.stock,
-                quantity: Math.min(
-                  item.stock,
-                  entry.quantity + requestedQuantity,
-                ),
-              }
-            : entry,
-        );
-      }
+    if (existing) {
+      const combined = existing.quantity + qty;
+      if (combined > item.stock || !validStep(combined, step)) return false;
 
-      return [
-        ...current,
-        {
-          ...item,
-          key,
-          quantity: Math.min(item.stock, requestedQuantity),
-        },
-      ];
-    });
-  }, []);
+      setItems(items.map(entry => entry.key === key
+        ? { ...entry, stock: item.stock, quantity: combined }
+        : entry));
+      return true;
+    }
+
+    setItems([...items, { ...item, key, quantity: qty, quantityStep: step, minQuantity: min }]);
+    return true;
+  }, [items]);
 
   const setQuantity = useCallback((key: string, quantity: number) => {
     if (!Number.isFinite(quantity)) return;
-
-    setItems((current) =>
-      current.map((item) =>
-        item.key === key
-          ? {
-              ...item,
-              quantity: Math.max(
-                1,
-                Math.min(item.stock, Math.floor(quantity)),
-              ),
-            }
-          : item,
-      ),
-    );
+    setItems(current => current.map(item => {
+      if (item.key !== key) return item;
+      if (
+        quantity < item.minQuantity ||
+        quantity > item.stock ||
+        !validStep(quantity, item.quantityStep)
+      ) return item;
+      return { ...item, quantity };
+    }));
   }, []);
 
   const removeItem = useCallback((key: string) => {
-    setItems((current) => current.filter((item) => item.key !== key));
+    setItems(current => current.filter(item => item.key !== key));
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
@@ -142,27 +144,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items,
     hydrated,
     count: items.reduce((sum, item) => sum + item.quantity, 0),
-    subtotal: items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    ),
-    addItem,
-    setQuantity,
-    removeItem,
-    clearCart,
+    subtotal: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    addItem, setQuantity, removeItem, clearCart,
   }), [items, hydrated, addItem, setQuantity, removeItem, clearCart]);
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart harus digunakan di dalam CartProvider.");
-  }
+  if (!context) throw new Error("useCart harus digunakan di dalam CartProvider.");
   return context;
 }

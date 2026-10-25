@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getProduct, formatRupiah, type ProductDetail, type ProductVariant } from "@/lib/marketplace-api";
 import { getSauriImage } from "@/lib/sauri-images";
 import { formatStock } from "@/lib/format-stock";
+import ProductAddToCart from "@/components/cart/ProductAddToCart";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const originalImageUrl = resolveImageUrl(primaryImage?.image_url);
   
   // Kalau gambar di database kosong, pakai fallback dari folder public/sauri
-  const fallbackImageUrl = getSauriImage(product.name);
+  const fallbackImageUrl = product.business_slug === "fajar-florist" ? null : getSauriImage(product.name);
   const imageUrl = originalImageUrl || fallbackImageUrl;
 
   // Ambil harga & stok dari varian pertama (karena di ProductDetail min_price di-Omit)
@@ -104,9 +105,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
           )}
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-bold text-white hover:bg-red-700 transition">
-              🛒 Beli Sekarang
-            </button>
+            <ProductAddToCart
+              productSlug={product.slug}
+              productName={product.name}
+              businessName={product.business_name}
+              imageUrl={imageUrl}
+              variants={product.variants ?? []}
+              brand={product.brand}
+/>
             <Link
               href={`/umkm/${product.business_slug}`}
               className="flex-1 rounded-xl border border-gray-300 px-6 py-3 text-center font-bold text-gray-900 hover:bg-gray-50 transition"
@@ -119,6 +125,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     </main>
   );
 }
+
 
 
 

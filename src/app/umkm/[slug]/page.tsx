@@ -24,7 +24,9 @@ type PageProps = {
 const API_BASE = (
   process.env.NEXT_PUBLIC_MARKETPLACE_API_URL ||
   process.env.MARKETPLACE_API_URL ||
-  "https://api.nusadhipa.shop/api/v1"
+  (process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:4000/api/v1"
+    : "https://api.nusadhipa.shop/api/v1")
 ).replace(/\/api\/v1\/?$/, "");
 
 function toWhatsAppNumber(phone: string | null | undefined): string {
@@ -170,13 +172,32 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={product.name} loading="lazy" />
-        ) : (
-          <div className="nd-product__empty">
-            <span aria-hidden="true">🛍️</span>
-            <small>Foto belum tersedia</small>
-          </div>
-        )}
+          <img
+            src={imageUrl}
+            alt={product.name}
+            loading="lazy"
+            onError={(event) => {
+              const img = event.currentTarget;
+              const fallback = fallbackByProduct || fallbackByCategory;
+
+              if (fallback && img.src !== new URL(fallback, window.location.href).href) {
+                img.onerror = null;
+                img.src = fallback;
+              } else {
+                img.style.display = "none";
+                const empty = img.parentElement?.querySelector(".nd-product__empty");
+                if (empty) (empty as HTMLElement).style.display = "grid";
+              }
+            }}
+          />
+        ) : null}
+        <div
+          className="nd-product__empty"
+          style={{ display: imageUrl ? "none" : "grid" }}
+        >
+          <span aria-hidden="true">🛍️</span>
+          <small>Foto belum tersedia</small>
+        </div>
       </div>
       <div className="nd-product__body">
         <h3 className="nd-product__name">{product.name}</h3>

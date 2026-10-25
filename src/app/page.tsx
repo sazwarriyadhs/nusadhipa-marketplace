@@ -281,6 +281,7 @@ function getCategoryFallbackImage(categorySlug: string): string {
 function ProductCard({ product }: { product: Product }) {
   const href = `/produk/${encodeURIComponent(product.slug)}`;
 
+  const isFajarFlorist = product.business_slug === "fajar-florist";
   const price = formatPriceRange(product);
 
   const hasStock =
@@ -316,14 +317,14 @@ function ProductCard({ product }: { product: Product }) {
             <div className="nd-product-card__pricing">
               {Number(product.min_retail_price) > 0 ? (
                 <div className="nd-price-block nd-price-block--retail">
-                  <span className="nd-price-label">🛒 Eceran</span>
+                  {!isFajarFlorist ? <span className="nd-price-label">🛒 Eceran</span> : null}
                   <span className="nd-price-value">{formatRupiah(Number(product.min_retail_price))}</span>
                   {product.sales_mode === "weight" && product.selling_unit === "kg" ? (
                     <span className="nd-price-unit">/kg</span>
                   ) : null}
                 </div>
               ) : null}
-              {Number(product.min_b2b_price) > 0 ? (
+              {!isFajarFlorist && Number(product.min_b2b_price) > 0 ? (
                 <div className="nd-price-block nd-price-block--b2b">
                   <span className="nd-price-label">🏭 Grosir</span>
                   <span className="nd-price-value nd-price-value--b2b">{formatRupiah(Number(product.min_b2b_price))}</span>

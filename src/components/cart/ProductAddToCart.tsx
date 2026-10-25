@@ -1,14 +1,15 @@
+
 "use client";
 
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import type { ProductVariant } from "@/lib/marketplace-api";
-import { formatStock } from "@/lib/format-stock";
 
 type Props = {
   productSlug: string;
   productName: string;
   businessName: string;
+  brand?: string | null;
   imageUrl: string | null;
   variants: ProductVariant[];
 };
@@ -21,10 +22,25 @@ function rupiah(value: number) {
   }).format(value);
 }
 
+function getRules(variant: ProductVariant) {
+  const unit =
+    variant.selling_unit ||
+    (variant.sales_mode === "weight" ? "kg" : "unit");
+
+  const isWeight = unit === "kg";
+  const minQty = isWeight ? Number(variant.min_retail_kg ?? 0.5) : 1;
+  const step = isWeight ? Number(variant.retail_step_kg ?? 0.5) : 1;
+  const stock = Number(variant.available_stock);
+  const price = Number(variant.retail_price ?? variant.price);
+
+  return { unit, minQty, step, stock, price };
+}
+
 export default function ProductAddToCart({
   productSlug,
   productName,
   businessName,
+  brand,
   imageUrl,
   variants,
 }: Props) {
@@ -44,17 +60,43 @@ export default function ProductAddToCart({
     (variant) => variant.id === variantId,
   );
 
+  const rules = selectedVariant ? getRules(selectedVariant) : null;
+
   function handleAdd() {
-    if (!selectedVariant) {
+    if (!selectedVariant || !rules) {
       setMessage("Pilih varian yang stoknya tersedia.");
       return;
     }
 
-    const stock = Number(selectedVariant.available_stock);
-    const price = Number(selectedVariant.price);
+    const { unit, minQty, step, stock, price } = rules;
 
-    if (!Number.isFinite(price) || price < 0 || stock < 1) {
-      setMessage("Harga atau stok produk tidak valid.");
+    if (
+      !Number.isFinite(price) ||
+      price < 0 ||
+      !Number.isFinite(stock) ||
+      stock <= 0 ||
+      !Number.isFinite(minQty) ||
+      minQty <= 0 ||
+      !Number.isFinite(step) ||
+      step <= 0
+    ) {
+      setMessage("Harga, stok, atau aturan jumlah produk tidak valid.");
+      return;
+    }
+
+    const stepsFromMinimum = (quantity - minQty) / step;
+    const isValidStep =
+      Math.abs(stepsFromMinimum - Math.round(stepsFromMinimum)) < 1e-8;
+
+    if (
+      !Number.isFinite(quantity) ||
+      quantity < minQty ||
+      quantity > stock ||
+      !isValidStep
+    ) {
+      setMessage(
+        `Jumlah minimal ${minQty} ${unit}, maksimal ${stock} ${unit}, dengan kelipatan ${step} ${unit}.`,
+      );
       return;
     }
 
@@ -66,9 +108,12 @@ export default function ProductAddToCart({
       variantName: selectedVariant.variant_name,
       price,
       stock,
-      stockUnit: selectedVariant.selling_unit ?? (selectedVariant.sales_mode === "weight" ? "kg" : "unit"),
       imageUrl,
       quantity,
+      sellingMode: "retail",
+      stockUnit: unit,
+      minQuantity: minQty,
+      quantityStep: step,
     });
 
     setMessage("Produk ditambahkan ke keranjang.");
@@ -93,48 +138,59 @@ export default function ProductAddToCart({
             className="product-variant-select"
             value={variantId}
             onChange={(event) => {
-              setVariantId(Number(event.target.value));
-              setQuantity(1);
-              setMessage("");
-            }}
-          >
-            {availableVariants.map((variant) => (
-              <option key={variant.id} value={variant.id}>
-                {variant.variant_name} — {rupiah(Number(variant.price))} — Stok{" "}
-                {formatStock(variant.available_stock, variant.selling_unit, variant.sales_mode)}
-              </option>
-            ))}
-          </select>
+              const nextId = Number(event.target.value);
+              const nextVariant = availableVariants.find(
+                (variant) => variant.id === nextId,
+              );
 
-          {selectedVariant && (
-            <div className="product-purchase-price">
-              {rupiah(Number(selectedVariant.price))}
-            </div>
-          )}
-
-          <label className="product-purchase-label" htmlFor="product-quantity">
-            Jumlah
-          </label>
-
-          <input
-            id="product-quantity"
-            className="product-quantity-input"
-            type="number"
-            min={1}
-            max={selectedVariant?.available_stock ?? 1}
-            value={quantity}
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              const max = Number(selectedVariant?.available_stock ?? 1);
-
+              setVariantId(nextVariant?.id ?? "");
               setQuantity(
-                Number.isFinite(next)
-                  ? Math.max(1, Math.min(max, Math.floor(next)))
-                  : 1,
+                nextVariant ? getRules(nextVariant).minQty : 1,
               );
               setMessage("");
             }}
-          />
+          >
+            {availableVariants.map((variant) => {
+              const variantRules = getRules(variant);
+
+              return (
+                <option key={variant.id} value={variant.id}>
+                  {variant.variant_name} — {rupiah(variantRules.price)} — Stok{" "}
+                  {variantRules.stock} {variantRules.unit}
+                </option>
+              );
+            })}
+          </select>
+
+          {rules && (
+            <>
+              <div className="product-purchase-price">
+                {rupiah(rules.price)} / {rules.unit}
+              </div>
+
+              <label
+                className="product-purchase-label"
+                htmlFor="product-quantity"
+              >
+                Jumlah ({rules.unit})
+              </label>
+
+              <input
+                id="product-quantity"
+                className="product-quantity-input"
+                type="number"
+                min={rules.minQty}
+                max={rules.stock}
+                step={rules.step}
+                value={quantity}
+                onChange={(event) => {
+                  const raw = event.target.value;
+                  setQuantity(raw === "" ? 0 : Number(raw));
+                  setMessage("");
+                }}
+              />
+            </>
+          )}
 
           <button
             type="button"
@@ -153,3 +209,6 @@ export default function ProductAddToCart({
     </section>
   );
 }
+
+
+

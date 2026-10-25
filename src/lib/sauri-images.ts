@@ -1,6 +1,5 @@
 // Mapping nama produk ke nama file gambar di folder public/sauri
 export const SAURI_IMAGE_MAP: Record<string, string> = {
-  "ayam beku test": "01_boneless-dada.jpg",
   "boneless dada": "01_boneless-dada.jpg",
   "boneless paha": "02_boneless-paha.jpg",
   "paha pentung": "03_paha-pentung.jpg",
@@ -20,6 +19,10 @@ export const SAURI_IMAGE_MAP: Record<string, string> = {
   "tulang paha": "17_tulang-paha.jpg",
   "tunggir": "18_tunggir.jpg",
   "ayam utuh karkas": "19_ayam-utuh-karkas.jpg",
+  "ayam beku": "19_ayam-utuh-karkas.jpg",
+  "karkas beku": "19_ayam-utuh-karkas.jpg",
+  "karkas ayam": "19_ayam-utuh-karkas.jpg",
+  "ayam utuh": "19_ayam-utuh-karkas.jpg",
   "tuna loin": "20_tuna-loin.jpg",
   "tuna mixed cooked": "21_tuna-mixed-cooked-saurigo-tmc-001.jpg",
   "ikan air tawar": "22_ikan-air-tawar.jpg",
@@ -82,13 +85,13 @@ export const CATEGORY_IMAGE_MAP: Record<string, string> = {
   
   // Ikan & Seafood
   "ikan": "23_ikan-laut.jpg",
-  "seafood": "20_tuna-loin.jpg",
+  "seafood": "23_ikan-laut.jpg",
   
   // Makanan Olahan
-  "makanan olahan": "01_boneless-dada.jpg",
+  "makanan olahan": "21_tuna-mixed-cooked-saurigo-tmc-001.jpg",
   
   // Sembako
-  "sembako": "28_pakan-ikan.jpg",
+  "sembako": "19_ayam-utuh-karkas.jpg",
   
   // Pakan
   "pakan ternak": "29_pakan-ternak.jpg",
@@ -133,3 +136,8 @@ export function getCategoryImage(categoryName: string | undefined | null): strin
   // Default kalau nggak ketemu
   return "/sauri/SAURI_29_Foto_Produk_Cropped/19_ayam-utuh-karkas.jpg";
 }
+
+
+
+
+

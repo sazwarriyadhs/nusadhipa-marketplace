@@ -110,10 +110,25 @@ export function StoreCatalog({ products, categories, businessName }: Props) {
             <div className="nd-store-products-grid">
               {filtered.slice(0, visibleCount).map((product, index) => {
                 const id = String(product.public_id ?? product.slug ?? `p-${index}`);
-                const image =
-                  resolveImage(product.image_url) ||
-                  getSauriImage(product.name) ||
-                  getCategoryImage(product.category_name);
+                const isFreshMarket =
+                  /sauri|fresh market/i.test(businessName);
+
+                const productName = product.name
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLocaleLowerCase("id-ID");
+
+                const needsDedicatedPhoto =
+                  /minyak ikan|fish cake|sosis ikan|fish nugget|fish ball|bakso ikan|nugget ikan|petfood|pet food|pet treats|chicken treats|fish treats|special formula|wet petfood|cooked frozen/.test(productName);
+
+                const mappedProductImage = getSauriImage(product.name);
+
+                const backendProductImage = resolveImage(product.image_url);
+                const image = isFreshMarket
+                  ? backendProductImage || mappedProductImage || null
+                  : backendProductImage ||
+                    mappedProductImage ||
+                    getCategoryImage(product.category_name);
                 const price =
                   product.min_price == null
                     ? "Harga belum tersedia"
@@ -189,3 +204,6 @@ export function StoreCatalog({ products, categories, businessName }: Props) {
     </>
   );
 }
+
+
+
