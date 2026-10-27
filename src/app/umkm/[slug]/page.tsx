@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StoreOwnerActions } from "@/components/store/StoreOwnerActions";
 import { Reveal } from "@/components/home/Reveal";
 import {
   getBusinessBySlug,

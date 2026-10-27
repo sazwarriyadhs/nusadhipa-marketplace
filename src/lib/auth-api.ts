@@ -22,6 +22,7 @@ export type AuthUser = {
   status?: "pending" | "active" | "inactive";
   businessName?: string;
   businessType?: string;
+  businessId?: number; // Tambahan
 };
 
 export type LoginInput = {
@@ -36,7 +37,6 @@ export type RegisterInput = {
   phone?: string;
   password: string;
   role: UserRole;
-  /* Field tenant — opsional, backend belum support */
   businessName?: string;
   businessType?: string;
 };
@@ -141,6 +141,7 @@ export async function login(input: LoginInput): Promise<LoginResponse> {
     email: data.user?.email ?? input.email,
     role: input.role,
     status: "active",
+    businessId: (data.user as any)?.business_id ?? undefined, // Tambahan
   };
   setCachedUser(user);
 
