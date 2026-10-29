@@ -248,40 +248,46 @@ export default async function StoreProfilePage({ params }: PageProps) {
   ).slice(0, 6);
 
   // ==========================================
-  // MAPPING BANNER BERDASARKAN KBLI 2025
+  // MAPPING BANNER: PRIORITASKAN DATABASE
   // ==========================================
   const businessName = business?.business_name ?? "Toko";
   const kbliCode = business?.kbli_code ?? "";
   const kbliName = (business?.kbli_name ?? "").toLowerCase();
 
-  let bannerUrl = "/kategori/03-peternakan-daging-perikanan.png"; // Default
+  // 1. Coba ambil dari database dulu
+  let bannerUrl = resolveImageUrl(business?.banner_url);
 
-  if (kbliCode === "46322" || kbliCode === "46325") {
-    bannerUrl = "/kategori/03-peternakan-daging-perikanan.png";
-  } else if (kbliCode === "47761") {
-    bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
-  } else if (kbliCode === "62900" || kbliCode === "62010" || kbliCode === "62020") {
-    bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
-  } else if (kbliCode.startsWith("01") || kbliCode.startsWith("02") || kbliCode.startsWith("03") || kbliName.includes("pertanian")) {
-    bannerUrl = "/kategori/02-pertanian-hasil-bumi.png";
-  } else if (kbliCode.startsWith("10") || kbliCode.startsWith("11") || kbliCode.startsWith("12") || kbliCode.startsWith("56") || kbliName.includes("makanan") || kbliName.includes("minuman")) {
-    bannerUrl = "/kategori/01-makanan-minuman.png";
-  } else if (kbliCode.startsWith("46205") || kbliName.includes("petfood") || kbliName.includes("makanan hewan")) {
-    bannerUrl = "/kategori/04-petfood-kebutuhan-hewan.png";
-  } else if (kbliCode.startsWith("14") || kbliCode.startsWith("15") || kbliName.includes("fashion") || kbliName.includes("pakaian")) {
-    bannerUrl = "/kategori/05-fashion-aksesori.png";
-  } else if (kbliCode.startsWith("16") || kbliCode.startsWith("31") || kbliCode.startsWith("32") || kbliName.includes("kerajinan")) {
-    bannerUrl = "/kategori/06-kerajinan-produk-kreatif.png";
-  } else if (kbliCode.startsWith("96") || kbliName.includes("kecantikan") || kbliName.includes("kosmetik")) {
-    bannerUrl = "/kategori/08-kecantikan-perawatan-diri.png";
-  } else if (kbliName.includes("bunga") || kbliName.includes("florist") || kbliName.includes("tanaman hias")) {
-    bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
-  } else if (kbliCode.startsWith("26") || kbliCode.startsWith("27") || kbliName.includes("elektronik")) {
-    bannerUrl = "/kategori/10-elektronik-peralatan.png";
-  } else if (kbliCode.startsWith("62") || kbliCode.startsWith("63") || kbliCode.startsWith("69") || kbliCode.startsWith("70") || kbliCode.startsWith("73") || kbliName.includes("jasa") || kbliName.includes("bisnis") || kbliName.includes("teknologi")) {
-    bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
-  } else if (kbliCode.startsWith("46") || kbliCode.startsWith("47") || kbliName.includes("grosir") || kbliName.includes("b2b")) {
-    bannerUrl = "/kategori/12-industri-grosir-b2b.png";
+  // 2. Jika database kosong, baru pakai fallback KBLI
+  if (!bannerUrl) {
+    bannerUrl = "/kategori/03-peternakan-daging-perikanan.png"; // Default
+
+    if (kbliCode === "46322" || kbliCode === "46325") {
+      bannerUrl = "/kategori/03-peternakan-daging-perikanan.png";
+    } else if (kbliCode === "47761") {
+      bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
+    } else if (kbliCode === "62900" || kbliCode === "62010" || kbliCode === "62020") {
+      bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
+    } else if (kbliCode.startsWith("01") || kbliCode.startsWith("02") || kbliCode.startsWith("03") || kbliName.includes("pertanian")) {
+      bannerUrl = "/kategori/02-pertanian-hasil-bumi.png";
+    } else if (kbliCode.startsWith("10") || kbliCode.startsWith("11") || kbliCode.startsWith("12") || kbliCode.startsWith("56") || kbliName.includes("makanan") || kbliName.includes("minuman")) {
+      bannerUrl = "/kategori/01-makanan-minuman.png";
+    } else if (kbliCode.startsWith("46205") || kbliName.includes("petfood") || kbliName.includes("makanan hewan")) {
+      bannerUrl = "/kategori/04-petfood-kebutuhan-hewan.png";
+    } else if (kbliCode.startsWith("14") || kbliCode.startsWith("15") || kbliName.includes("fashion") || kbliName.includes("pakaian")) {
+      bannerUrl = "/kategori/05-fashion-aksesori.png";
+    } else if (kbliCode.startsWith("16") || kbliCode.startsWith("31") || kbliCode.startsWith("32") || kbliName.includes("kerajinan")) {
+      bannerUrl = "/kategori/06-kerajinan-produk-kreatif.png";
+    } else if (kbliCode.startsWith("96") || kbliName.includes("kecantikan") || kbliName.includes("kosmetik")) {
+      bannerUrl = "/kategori/08-kecantikan-perawatan-diri.png";
+    } else if (kbliName.includes("bunga") || kbliName.includes("florist") || kbliName.includes("tanaman hias")) {
+      bannerUrl = "/kategori/09-tanaman-bunga-florist.png";
+    } else if (kbliCode.startsWith("26") || kbliCode.startsWith("27") || kbliName.includes("elektronik")) {
+      bannerUrl = "/kategori/10-elektronik-peralatan.png";
+    } else if (kbliCode.startsWith("62") || kbliCode.startsWith("63") || kbliCode.startsWith("69") || kbliCode.startsWith("70") || kbliCode.startsWith("73") || kbliName.includes("jasa") || kbliName.includes("bisnis") || kbliName.includes("teknologi")) {
+      bannerUrl = "/kategori/11-jasa-layanan-bisnis.png";
+    } else if (kbliCode.startsWith("46") || kbliCode.startsWith("47") || kbliName.includes("grosir") || kbliName.includes("b2b")) {
+      bannerUrl = "/kategori/12-industri-grosir-b2b.png";
+    }
   }
 
   const logoUrl = resolveImageUrl(business?.logo_url);
