@@ -146,6 +146,10 @@ export async function getProduct(slug: string): Promise<ProductDetail | null> {
    ============================================================ */
 
 export interface BusinessInfo {
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  facebook_url?: string | null;
+  website_url?: string | null;
   public_id: string;
   business_name: string;
   legal_name: string | null;
@@ -255,5 +259,6 @@ export function formatRupiah(value: string | number): string {
     maximumFractionDigits: 0
   }).format(amount);
 }
+
 
 
