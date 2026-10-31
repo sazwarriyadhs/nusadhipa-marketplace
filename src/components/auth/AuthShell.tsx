@@ -24,14 +24,14 @@ export function AuthShell({
     <main className="auth-page">
       <div className="auth-card">
         {/* Brand */}
-        <div className="auth-brand">
-          <span className="auth-brand__mark" aria-hidden="true">
-            N
-          </span>
-          <div className="auth-brand__text">
-            <strong>NUSA-DHIPA</strong>
-            <small>Marketplace UMKM</small>
-          </div>
+        <div className="auth-brand" style={{ justifyContent: "center", marginBottom: 24 }}>
+          <img
+            src="/images/logo_nusadhipa.png"
+            alt="NUSA-DHIPA"
+            className="auth-brand__logo"
+            style={{ height: 60, objectFit: "contain" }}
+          />
+
         </div>
 
         {/* Title */}
