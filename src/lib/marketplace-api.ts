@@ -53,6 +53,7 @@ export interface ProductVariant {
   min_b2b_kg?: string | number | null;
   retail_step_kg?: string | number | null;
   b2b_step_kg?: string | number | null;
+  quantity_step?: string | number | null;
   selling_unit?: string | null;
   sales_mode?: string | null;
   weight_grams: number | null;

@@ -1,11 +1,10 @@
-
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import AppProviders from "@/components/AppProviders";
-import CartCount from "@/components/cart/CartCount";
+import HeaderClient from "@/components/HeaderClient"; // Import komponen baru kita
 
 const SITE_URL = "https://nusadhipa.shop";
 const SITE_NAME = "NUSA-DHIPA Marketplace";
@@ -178,19 +177,10 @@ function MainHeader() {
             </button>
           </form>
 
-          <div className="nd-header-actions">
-            <span className="nd-location">Indonesia</span>
-            <Link href="/login" className="nd-account">
-              Masuk / Daftar
-            </Link>
-            <Link
-              href="/keranjang"
-              className="nd-cart"
-              aria-label="Keranjang belanja"
-            >
-              <CartCount />
-            </Link>
-          </div>
+          {/* --- BAGIAN YANG DIUBAH --- */}
+          <HeaderClient />
+          {/* -------------------------- */}
+
         </div>
 
         <nav className="main-nav" aria-label="Navigasi utama">

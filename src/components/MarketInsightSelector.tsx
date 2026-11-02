@@ -27,7 +27,10 @@ type RegionalData = {
   generated_at?: string;
   total_provinces?: number;
   successful_provinces?: number;
-  failed_provinces?: number;
+  failed_provinces?: Array<{
+    province: string;
+    reason: string;
+  }>;
   prices: PricePoint[];
   lowest: PricePoint | null;
   highest: PricePoint | null;
@@ -125,6 +128,14 @@ function normalizePrice(value: any): PricePoint | null {
   };
 }
 
+function normalizeExtreme(value: any): PricePoint | null {
+  if (Array.isArray(value)) {
+    return value.length ? normalizePrice(value[0]) : null;
+  }
+
+  return normalizePrice(value);
+}
+
 function normalizeRegional(value: any): RegionalData {
   const root = unwrap(value);
   const rawPrices = Array.isArray(root?.prices)
@@ -139,8 +150,12 @@ function normalizeRegional(value: any): RegionalData {
     .map(normalizePrice)
     .filter((p: PricePoint | null): p is PricePoint => p !== null);
 
-  const explicitLowest = normalizePrice(root?.lowest ?? root?.lowest_price);
-  const explicitHighest = normalizePrice(root?.highest ?? root?.highest_price);
+  const explicitLowest = normalizeExtreme(
+    root?.lowest ?? root?.lowest_price
+  );
+  const explicitHighest = normalizeExtreme(
+    root?.highest ?? root?.highest_price
+  );
 
   const lowest = explicitLowest ??
     (prices.length ? [...prices].sort((a, b) => a.price - b.price)[0] : null);
@@ -744,5 +759,6 @@ export default function MarketInsightSelector() {
     </section>
   );
 }
+
 
 

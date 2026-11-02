@@ -54,13 +54,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (input: RegisterInput) => {
-    const result = await apiRegister(input);
-    if (result.success) {
-      return { success: true, message: result.message };
-    }
-    return { success: false, message: result.message };
-  }, []);
+    try {
+      const result = await apiRegister(input);
 
+      if (result.success) {
+        return {
+          success: true,
+          message: result.message,
+        };
+      }
+
+      return {
+        success: false,
+        message: result.message || "Registrasi gagal.",
+      };
+    } catch {
+      return {
+        success: false,
+        message: "Terjadi kesalahan saat mengirim registrasi.",
+      };
+    }
+  }, []);
   const logout = useCallback(() => {
     apiLogout();
     setUser(null);

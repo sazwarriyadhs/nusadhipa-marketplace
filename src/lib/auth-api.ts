@@ -151,47 +151,50 @@ export async function login(input: LoginInput): Promise<LoginResponse> {
 export async function register(
   input: RegisterInput,
 ): Promise<RegisterResponse> {
-  /* Field tenant disimpan sementara di localStorage untuk nanti */
-  if (input.role === "tenant" && typeof window !== "undefined") {
-    try {
-      window.localStorage.setItem(
-        "nd_pending_tenant",
-        JSON.stringify({
-          businessName: input.businessName,
-          businessType: input.businessType,
-          email: input.email,
-        }),
-      );
-    } catch {
-      /* ignore */
+  try {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        fullName: input.fullName.trim(),
+        email: input.email.trim().toLowerCase(),
+        phone: input.phone?.trim() || undefined,
+        password: input.password,
+        role: input.role,
+        businessName:
+          input.role === "tenant"
+            ? input.businessName?.trim()
+            : undefined,
+        businessType:
+          input.role === "tenant"
+            ? input.businessType
+            : undefined,
+      }),
+    });
+
+    const data = (await res.json()) as RegisterResponse;
+
+    if (!res.ok || !data.success) {
+      return {
+        success: false,
+        message:
+          data.message ||
+          "Registrasi gagal. Silakan coba lagi.",
+      };
     }
-  }
 
-  const res = await fetch(`${API_BASE}/auth/register`, {
-    method: "POST",
-    headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({
-      fullName: input.fullName.trim(),
-      email: input.email.trim().toLowerCase(),
-      phone: input.phone?.trim() || undefined,
-      password: input.password,
-    }),
-  });
-
-  const data = (await res.json()) as RegisterResponse;
-
-  if (!res.ok || !data.success) {
+    return data;
+  } catch {
     return {
       success: false,
       message:
-        data.message ||
-        "Registrasi gagal. Silakan coba lagi.",
+        "Tidak dapat terhubung ke server. Periksa koneksi API lokal.",
     };
   }
-
-  return data;
 }
-
 export function logout(): void {
   clearToken();
 }

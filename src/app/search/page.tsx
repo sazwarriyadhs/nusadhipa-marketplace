@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { SearchBar } from "@/components/home/SearchBar";
 
 import {
   getCategories,
@@ -161,31 +163,51 @@ function ProductCard({ product }: { product: Product }) {
 
 export default async function SearchPage({ searchParams }: PageProps) {
   const { q, category, page } = await searchParams;
-  const currentPage = Number(page || 1);
 
-  const categoriesResult = await getCategories().catch(() => []);
-  const productsResult = await getProducts({
-    q: q || undefined,
-    category: category || undefined,
-    page: 1, // SELALU page 1 biar dapet semua produk
-    limit: 500,
-  }).catch(() => ({ data: [] }));
+  const parsedPage = Number.parseInt(page || "1", 10);
+  const currentPage =
+    Number.isSafeInteger(parsedPage) && parsedPage > 0
+      ? parsedPage
+      : 1;
 
-  const allCategories: Category[] = Array.isArray(categoriesResult) ? categoriesResult : [];
-  const allProducts: Product[] = productsResult?.data || [];
-  
-  // Filter: cuma kategori utama yang BENERAN punya produk
-  const categorySlugsWithProducts = new Set(allProducts.map((p) => p.category_slug));
-  const categories = allCategories.filter(
-    (cat) => cat.parent_id === null && categorySlugsWithProducts.has(cat.slug)
-  );
-    const finalProducts: Product[] = allProducts;
-
-  // Pagination: 20 produk per halaman
   const PAGE_SIZE = 26;
-  const totalPages = Math.ceil(finalProducts.length / PAGE_SIZE);
-  const startIdx = (currentPage - 1) * PAGE_SIZE;
-  const products: Product[] = finalProducts.slice(startIdx, startIdx + PAGE_SIZE);
+
+  const [categoriesResult, productsResult] = await Promise.all([
+    getCategories().catch(() => [] as Category[]),
+    getProducts({
+      q: q?.trim() || undefined,
+      category: category || undefined,
+      page: currentPage,
+      limit: PAGE_SIZE,
+    }).catch(() => ({ data: [] as Product[], pagination: undefined })),
+  ]);
+
+  const allCategories: Category[] = Array.isArray(categoriesResult)
+    ? categoriesResult
+    : [];
+
+  const categories = allCategories.filter(
+    (cat) => cat.parent_id === null
+  );
+
+  const products: Product[] = productsResult?.data || [];
+  const totalProducts =
+    productsResult?.pagination?.total ?? products.length;
+
+  const totalPages =
+    productsResult?.pagination?.total_pages ??
+    Math.ceil(totalProducts / PAGE_SIZE);
+
+  if (totalPages > 0 && currentPage > totalPages) {
+    const params = new URLSearchParams();
+
+    if (q) params.set("q", q);
+    if (category) params.set("category", category);
+
+    params.set("page", String(totalPages));
+
+    redirect(`/search?${params.toString()}`);
+  }
 
   return (
     <main className="nd-marketplace">
@@ -210,6 +232,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
           }}>
             Gunakan kata kunci atau filter kategori untuk menemukan produk yang kamu butuhkan.
           </p>
+          <div style={{ maxWidth: "560px", margin: "22px auto 0" }}>
+            <SearchBar
+              defaultValue={q || ""}
+              selectedCategory={category || ""}
+            />
+          </div>
         </div>
 
         {/* KATEGORI: GRID KARTU BESAR */}

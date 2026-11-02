@@ -21,7 +21,9 @@ function RegisterFormContent() {
   const searchParams = useSearchParams();
   const { register } = useAuth();
 
-  const initialRole = (searchParams.get("type") as Role) || "customer";
+  const requestedRole = searchParams.get("type");
+  const initialRole: Role =
+    requestedRole === "tenant" ? "tenant" : "customer";
   const [role, setRole] = useState<Role>(initialRole);
 
   const [fullName, setFullName] = useState("");
@@ -40,42 +42,79 @@ function RegisterFormContent() {
     setError(null);
     setSuccessMsg(null);
 
-    /* Validasi tenant */
-    if (role === "tenant" && (!businessName.trim() || !businessType)) {
-      setError("Nama usaha dan kategori usaha wajib diisi untuk mitra.");
+    const normalizedName = fullName.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const passwordBytes = new TextEncoder().encode(password).length;
+
+    if (normalizedName.length < 2 || normalizedName.length > 150) {
+      setError("Nama lengkap harus terdiri dari 2–150 karakter.");
+      return;
+    }
+
+    if (
+      normalizedEmail.length > 190 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+    ) {
+      setError("Format email tidak valid.");
+      return;
+    }
+
+    if (phone.trim().length > 30) {
+      setError("Nomor HP maksimal 30 karakter.");
+      return;
+    }
+
+    if (password.length < 10 || passwordBytes > 72) {
+      setError("Password minimal 10 karakter dan maksimal 72 byte.");
+      return;
+    }
+
+    if (
+      role === "tenant" &&
+      (
+        businessName.trim().length < 2 ||
+        businessName.trim().length > 190 ||
+        !BUSINESS_TYPES.includes(businessType)
+      )
+    ) {
+      setError("Nama usaha atau kategori usaha belum valid.");
       return;
     }
 
     setLoading(true);
-    const result = await register({
-      fullName,
-      email,
-      phone,
-      password,
-      role,
-      businessName: role === "tenant" ? businessName : undefined,
-      businessType: role === "tenant" ? businessType : undefined,
-    });
-    setLoading(false);
 
-    if (!result.success) {
-      setError(result.message || "Registrasi gagal.");
-      return;
-    }
+    try {
+      const result = await register({
+        fullName: normalizedName,
+        email: normalizedEmail,
+        phone: phone.trim(),
+        password,
+        role,
+        businessName:
+          role === "tenant" ? businessName.trim() : undefined,
+        businessType:
+          role === "tenant" ? businessType : undefined,
+      });
 
-    /* Sukses — redirect ke login dengan notice */
-    setSuccessMsg(
-      result.message ||
-        "Registrasi berhasil. Akun menunggu aktivasi admin."
-    );
+      if (!result.success) {
+        setError(result.message || "Registrasi gagal.");
+        return;
+      }
 
-    setTimeout(() => {
-      router.push(
-        `/login?type=${role}&registered=1`
+      setSuccessMsg(
+        result.message ||
+          "Registrasi berhasil. Akun menunggu aktivasi admin."
       );
-    }, 2200);
-  }
 
+      setTimeout(() => {
+        router.push(`/login?type=${role}&registered=1`);
+      }, 2200);
+    } catch {
+      setError("Terjadi kesalahan saat registrasi. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <AuthShell mode="register" activeRole={role} onRoleChange={setRole}>
       <form className="auth-form" onSubmit={onSubmit} noValidate>

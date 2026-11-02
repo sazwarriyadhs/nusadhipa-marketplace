@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const BASE = (
-  process.env.MARKETPLACE_API_URL || "http://127.0.0.1:4002/api/v1"
+  process.env.MARKETPLACE_API_URL ||
+  process.env.NEXT_PUBLIC_MARKETPLACE_API_URL ||
+  "http://127.0.0.1:4000/api/v1"
 ).replace(/\/+$/, "");
 
 const UPSTREAM_TIMEOUT_MS = 15_000;
