@@ -42,6 +42,14 @@ function resolveImageUrl(url: string | null | undefined): string | null {
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
+// --- FUNGSI BARU: Membersihkan Link Sosmed/Website ---
+function formatUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+  return `https://${trimmed}`;
+}
+
 function extractApiList<T>(response: unknown): T[] {
   if (Array.isArray(response)) return response as T[];
   if (!response || typeof response !== "object") return [];
@@ -443,25 +451,25 @@ export default async function StoreProfilePage({ params }: PageProps) {
                   </span>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                     {business?.instagram_url && (
-                      <a href={business.instagram_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
+                      <a href={formatUrl(business.instagram_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
                         <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339974/instagram.png" alt="Instagram" width={18} height={18} />
                         Instagram
                       </a>
                     )}
                     {business?.tiktok_url && (
-                      <a href={business.tiktok_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
+                      <a href={formatUrl(business.tiktok_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
                         <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339973/tiktok.png" alt="TikTok" width={18} height={18} />
                         TikTok
                       </a>
                     )}
                     {business?.facebook_url && (
-                      <a href={business.facebook_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
+                      <a href={formatUrl(business.facebook_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
                         <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339973/facebook.png" alt="Facebook" width={18} height={18} />
                         Facebook
                       </a>
                     )}
                     {business?.website_url && (
-                      <a href={business.website_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
+                      <a href={formatUrl(business.website_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
                         <IconGlobe /> Website
                       </a>
                     )}
@@ -471,6 +479,16 @@ export default async function StoreProfilePage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {/* TAMBAHAN BARU: Menampilkan Deskripsi Toko */}
+        <Reveal delay={30}>
+          <section style={{ marginTop: '24px', backgroundColor: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#111827' }}>Tentang Usaha</h3>
+            <p style={{ color: '#4b5563', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+              {business?.description || "Toko ini belum menambahkan deskripsi profil usaha."}
+            </p>
+          </section>
+        </Reveal>
 
         <Reveal delay={40}>
           <section className="nd-summary">
