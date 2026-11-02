@@ -38,7 +38,6 @@ function extractApiList<T>(response: unknown): T[] {
   return [];
 }
 
-
 /* ---------- Helper: resolve image URL ---------- */
 const API_BASE = (
   process.env.NEXT_PUBLIC_MARKETPLACE_API_URL ||
@@ -52,6 +51,15 @@ function resolveImageUrl(url: string | null | undefined): string | undefined {
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
+// --- FUNGSI BARU: Fallback Banner berdasarkan KBLI ---
+function getFallbackBanner(kbliCode?: string | null, businessType?: string | null) {
+  if (kbliCode?.startsWith("10") || kbliCode?.startsWith("56")) return "/kategori/01-makanan-minuman.png";
+  if (kbliCode?.startsWith("01") || kbliCode?.startsWith("02")) return "/kategori/02-pertanian-hasil-bumi.png";
+  if (kbliCode?.startsWith("62") || kbliCode?.startsWith("63")) return "/kategori/11-jasa-layanan-bisnis.png";
+  if (businessType === "supplier") return "/kategori/12-industri-grosir-b2b.png";
+  return "/kategori/03-peternakan-daging-perikanan.png"; // Default fallback
+}
+
 /* ---------- Types ---------- */
 
 type SellerInfo = {
@@ -62,6 +70,9 @@ type SellerInfo = {
   sampleSlug?: string;
   sampleImage?: string;
   logoUrl?: string;
+  bannerUrl?: string; // Tambahan
+  kbliCode?: string;  // Tambahan
+  businessType?: string; // Tambahan
 };
 
 function buildSellers(products: Product[]): SellerInfo[] {
@@ -105,28 +116,18 @@ function SellerAvatar({
   name: string;
   logoUrl?: string;
 }) {
-  // Kalau ada logo dari business → tampilkan
   if (logoUrl) {
     return (
-      <span
-        className="nd-seller-avatar nd-seller-avatar--image"
-        aria-hidden="true"
-      >
+      <span className="nd-seller-avatar nd-seller-avatar--image" aria-hidden="true">
         <img
           src={logoUrl}
           alt=""
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            display: "block",
-          }}
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
         />
       </span>
     );
   }
 
-  // Fallback inisial
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -142,53 +143,62 @@ function SellerAvatar({
 }
 
 function SellerCard({ seller }: { seller: SellerInfo }) {
-  const href = seller.slug
-    ? `/umkm/${encodeURIComponent(seller.slug)}`
-    : "/umkm";
-
+  const href = seller.slug ? `/umkm/${encodeURIComponent(seller.slug)}` : "/umkm";
   const categoriesList = Array.from(seller.categories).slice(0, 3);
+  const coverImage = seller.bannerUrl || getFallbackBanner(seller.kbliCode, seller.businessType);
 
   return (
-    <article className="nd-seller-card">
-      <div className="nd-seller-card__head">
-        <SellerAvatar name={seller.name} logoUrl={seller.logoUrl} />
-        <div className="nd-seller-card__title">
-          <h3>{seller.name}</h3>
-          <span className="nd-seller-card__badge">
-            <span aria-hidden="true">✓</span> Mitra NUSA-DHIPA
-          </span>
+    <article className="nd-seller-card" style={{ padding: 0, overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", height: "140px", backgroundColor: "#f3f4f6", overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={coverImage}
+          alt={`Cover ${seller.name}`}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)" }} />
+        <div style={{ position: "absolute", bottom: "-24px", left: "20px", width: "60px", height: "60px", backgroundColor: "#fff", borderRadius: "12px", padding: "4px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={seller.logoUrl || "/images/placeholder-logo.png"} 
+            alt={seller.name} 
+            style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "8px" }} 
+          />
         </div>
       </div>
 
-      <dl className="nd-seller-card__stats">
-        <div>
-          <dt>Produk</dt>
-          <dd>{seller.productCount}</dd>
-        </div>
-        <div>
-          <dt>Kategori</dt>
-          <dd>{seller.categories.size}</dd>
-        </div>
-      </dl>
-
-      {categoriesList.length > 0 ? (
-        <div className="nd-seller-card__tags">
-          {categoriesList.map((cat) => (
-            <span key={cat} className="nd-seller-tag">
-              {cat}
+      <div style={{ padding: "32px 20px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <div className="nd-seller-card__head" style={{ marginBottom: 16 }}>
+          <div className="nd-seller-card__title">
+            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: 4 }}>{seller.name}</h3>
+            <span className="nd-seller-card__badge">
+              <span aria-hidden="true">✓</span> Mitra NUSA-DHIPA
             </span>
-          ))}
-          {seller.categories.size > 3 ? (
-            <span className="nd-seller-tag nd-seller-tag--more">
-              +{seller.categories.size - 3}
-            </span>
-          ) : null}
+          </div>
         </div>
-      ) : null}
 
-      <Link href={href} className="nd-seller-card__cta">
-        Lihat Toko <span aria-hidden="true">→</span>
-      </Link>
+        <dl className="nd-seller-card__stats">
+          <div><dt>Produk</dt><dd>{seller.productCount}</dd></div>
+          <div><dt>Kategori</dt><dd>{seller.categories.size}</dd></div>
+        </dl>
+
+        {categoriesList.length > 0 ? (
+          <div className="nd-seller-card__tags" style={{ marginBottom: 20 }}>
+            {categoriesList.map((cat) => (
+              <span key={cat} className="nd-seller-tag">{cat}</span>
+            ))}
+            {seller.categories.size > 3 ? (
+              <span className="nd-seller-tag nd-seller-tag--more">+{seller.categories.size - 3}</span>
+            ) : null}
+          </div>
+        ) : (
+          <div style={{ height: "20px", marginBottom: "20px" }}></div>
+        )}
+
+        <Link href={href} className="nd-seller-card__cta" style={{ marginTop: "auto", display: "block", textAlign: "center" }}>
+          Lihat Toko <span aria-hidden="true">→</span>
+        </Link>
+      </div>
     </article>
   );
 }
@@ -219,7 +229,6 @@ export default async function UmkmPage({ searchParams }: PageProps) {
   let productsError = false;
   let businesses: BusinessInfo[] = [];
 
-  // Fetch businesses + products paralel
   const [businessesResult, productsResult] = await Promise.allSettled([
     getBusinesses(),
     getProducts({
@@ -238,7 +247,7 @@ export default async function UmkmPage({ searchParams }: PageProps) {
     productsError = true;
   }
 
-  // Build sellers + pass logo URL (kalau 1 bisnis)
+  // Build sellers + pass logo URL & banner URL
   const sellers = businesses
     .map((biz) => {
       const bizProducts = products.filter((p) => p.business_slug === biz.slug);
@@ -257,9 +266,13 @@ export default async function UmkmPage({ searchParams }: PageProps) {
         sampleSlug: sampleProduct?.slug,
         sampleImage: sampleProduct?.image_url ?? undefined,
         logoUrl: biz.logo_url ? resolveImageUrl(biz.logo_url) : undefined,
+        bannerUrl: biz.banner_url ? resolveImageUrl(biz.banner_url) : undefined, // Passing Banner
+        kbliCode: biz.kbli_code ?? undefined, // Passing KBLI untuk fallback
+        businessType: biz.business_type ?? undefined,
       };
     })
     .sort((a, b) => b.productCount - a.productCount);
+
   const totalSellers = sellers.length;
   const totalProducts = products.length;
 
@@ -278,120 +291,51 @@ export default async function UmkmPage({ searchParams }: PageProps) {
   return (
     <main className="nd-marketplace">
       <div className="nd-content">
-        {/* ================= BREADCRUMB ================= */}
+        {/* ... (Bagian BREADCRUMB, HERO, STATS, TOP CATEGORIES tetap sama) ... */}
         <Reveal>
-          <nav
-            className="nd-breadcrumb"
-            aria-label="Navigasi halaman"
-            style={{ marginBottom: 16 }}
-          >
+          <nav className="nd-breadcrumb" aria-label="Navigasi halaman" style={{ marginBottom: 16 }}>
             <Link href="/">Beranda</Link>
             <span aria-hidden="true">›</span>
             <span>Mitra UMKM</span>
           </nav>
         </Reveal>
 
-        {/* ================= HERO ================= */}
         <Reveal>
-          <section
-            className="nd-umkm-hero"
-            aria-labelledby="nd-umkm-title"
-          >
+          <section className="nd-umkm-hero" aria-labelledby="nd-umkm-title">
             <div className="nd-umkm-hero__content">
               <span className="nd-pill">EKOSISTEM UMKM NUSANTARA</span>
-
-              <h1 id="nd-umkm-title">
-                Kenali mitra usaha
-                <br />
-                NUSA-DHIPA.
-              </h1>
-
-              <p>
-                Jelajahi pelaku usaha lokal yang mempercayakan
-                produknya di marketplace NUSA-DHIPA. Temukan mitra
-                yang tepat untuk kebutuhan bisnismu.
-              </p>
-
+              <h1 id="nd-umkm-title">Kenali mitra usaha<br />NUSA-DHIPA.</h1>
+              <p>Jelajahi pelaku usaha lokal yang mempercayakan produknya di marketplace NUSA-DHIPA. Temukan mitra yang tepat untuk kebutuhan bisnismu.</p>
               <div className="nd-umkm-hero__actions">
-                <Link
-                  href="/search"
-                  className="nd-umkm-btn nd-umkm-btn--primary"
-                >
-                  Cari Produk <span aria-hidden="true">→</span>
-                </Link>
-                <a
-                  href="#daftar-mitra"
-                  className="nd-umkm-btn nd-umkm-btn--ghost"
-                >
-                  Lihat Daftar Mitra
-                </a>
+                <Link href="/search" className="nd-umkm-btn nd-umkm-btn--primary">Cari Produk <span aria-hidden="true">→</span></Link>
+                <a href="#daftar-mitra" className="nd-umkm-btn nd-umkm-btn--ghost">Lihat Daftar Mitra</a>
               </div>
             </div>
-
-            <div className="nd-umkm-hero__art" aria-hidden="true">
-              <span>🤝</span>
-            </div>
+            <div className="nd-umkm-hero__art" aria-hidden="true"><span>🤝</span></div>
           </section>
         </Reveal>
 
-        {/* ================= STATS ================= */}
         {!productsError ? (
           <Reveal delay={60}>
-            <section
-              className="nd-umkm-stats"
-              aria-label="Statistik mitra"
-            >
-              <div className="nd-umkm-stat">
-                <span className="nd-umkm-stat__num">{totalSellers}</span>
-                <strong>Mitra Usaha</strong>
-                <small>Terdaftar di katalog</small>
-              </div>
-              <div className="nd-umkm-stat">
-                <span className="nd-umkm-stat__num">{totalProducts}</span>
-                <strong>Produk</strong>
-                <small>Dari mitra terdaftar</small>
-              </div>
-              <div className="nd-umkm-stat">
-                <span className="nd-umkm-stat__num">
-                  {topCategories.length}
-                </span>
-                <strong>Kategori Aktif</strong>
-                <small>Produk mitra</small>
-              </div>
-              <div className="nd-umkm-stat">
-                <span className="nd-umkm-stat__num">34</span>
-                <strong>Provinsi</strong>
-                <small>Jangkauan nasional</small>
-              </div>
+            <section className="nd-umkm-stats" aria-label="Statistik mitra">
+              <div className="nd-umkm-stat"><span className="nd-umkm-stat__num">{totalSellers}</span><strong>Mitra Usaha</strong><small>Terdaftar di katalog</small></div>
+              <div className="nd-umkm-stat"><span className="nd-umkm-stat__num">{totalProducts}</span><strong>Produk</strong><small>Dari mitra terdaftar</small></div>
+              <div className="nd-umkm-stat"><span className="nd-umkm-stat__num">{topCategories.length}</span><strong>Kategori Aktif</strong><small>Produk mitra</small></div>
+              <div className="nd-umkm-stat"><span className="nd-umkm-stat__num">34</span><strong>Provinsi</strong><small>Jangkauan nasional</small></div>
             </section>
           </Reveal>
         ) : null}
 
-        {/* ================= TOP CATEGORIES ================= */}
         {topCategories.length > 0 ? (
           <Reveal delay={90}>
-            <section
-              className="nd-umkm-cats"
-              aria-labelledby="nd-umkm-cats-title"
-            >
+            <section className="nd-umkm-cats" aria-labelledby="nd-umkm-cats-title">
               <div className="nd-section-heading">
-                <div>
-                  <span className="nd-eyebrow">KATEGORI POPULER</span>
-                  <h2 id="nd-umkm-cats-title">
-                    Kategori mitra paling aktif
-                  </h2>
-                </div>
+                <div><span className="nd-eyebrow">KATEGORI POPULER</span><h2 id="nd-umkm-cats-title">Kategori mitra paling aktif</h2></div>
               </div>
-
               <div className="nd-umkm-cats__chips">
                 {topCategories.map(([name, count]) => (
-                  <Link
-                    key={name}
-                    href={`/search?category=${encodeURIComponent(name)}`}
-                    className="nd-chip"
-                  >
-                    {name}
-                    <span className="nd-chip__count">{count}</span>
+                  <Link key={name} href={`/search?category=${encodeURIComponent(name)}`} className="nd-chip">
+                    {name}<span className="nd-chip__count">{count}</span>
                   </Link>
                 ))}
               </div>
@@ -401,47 +345,20 @@ export default async function UmkmPage({ searchParams }: PageProps) {
 
         {/* ================= SELLER GRID ================= */}
         <Reveal delay={120}>
-          <section
-            id="daftar-mitra"
-            className="nd-umkm-section"
-            aria-labelledby="nd-umkm-list-title"
-          >
+          <section id="daftar-mitra" className="nd-umkm-section" aria-labelledby="nd-umkm-list-title">
             <div className="nd-section-heading">
               <div>
                 <span className="nd-eyebrow">DIREKTORI MITRA</span>
-                <h2 id="nd-umkm-list-title">
-                  {query ? `Mitra untuk "${query}"` : "Semua Mitra Usaha"}
-                </h2>
-                <p>
-                  {totalSellers > 0
-                    ? `Menampilkan ${totalSellers} mitra usaha dari katalog.`
-                    : "Mitra akan muncul setelah tersedia di katalog."}
-                </p>
+                <h2 id="nd-umkm-list-title">{query ? `Mitra untuk "${query}"` : "Semua Mitra Usaha"}</h2>
+                <p>{totalSellers > 0 ? `Menampilkan ${totalSellers} mitra usaha dari katalog.` : "Mitra akan muncul setelah tersedia di katalog."}</p>
               </div>
-
-              <Link href="/search" className="nd-section-link">
-                Jelajahi katalog <span aria-hidden="true">→</span>
-              </Link>
+              <Link href="/search" className="nd-section-link">Jelajahi katalog <span aria-hidden="true">→</span></Link>
             </div>
 
             {productsError ? (
-              <EmptyState
-                title="Direktori mitra sementara tidak tersedia"
-                description="Layanan katalog belum dapat dihubungi. Silakan coba lagi beberapa saat."
-              />
+              <EmptyState title="Direktori mitra sementara tidak tersedia" description="Layanan katalog belum dapat dihubungi. Silakan coba lagi beberapa saat." />
             ) : sellers.length === 0 ? (
-              <EmptyState
-                title={
-                  query
-                    ? `Tidak ada mitra untuk "${query}"`
-                    : "Belum ada mitra terdaftar"
-                }
-                description={
-                  query
-                    ? "Coba kata kunci lain atau jelajahi seluruh katalog."
-                    : "Mitra usaha akan ditampilkan setelah tersedia di katalog marketplace."
-                }
-              />
+              <EmptyState title={query ? `Tidak ada mitra untuk "${query}"` : "Belum ada mitra terdaftar"} description={query ? "Coba kata kunci lain atau jelajahi seluruh katalog." : "Mitra usaha akan ditampilkan setelah tersedia di katalog marketplace."} />
             ) : (
               <div className="nd-seller-grid">
                 {sellers.map((seller) => (
@@ -452,42 +369,21 @@ export default async function UmkmPage({ searchParams }: PageProps) {
           </section>
         </Reveal>
 
-        {/* ================= CTA JOIN ================= */}
+        {/* ... (Bagian CTA JOIN & NOTE tetap sama) ... */}
         <Reveal>
-          <section
-            className="nd-umkm-cta"
-            aria-labelledby="nd-umkm-cta-title"
-          >
-            <div className="nd-umkm-cta__symbol" aria-hidden="true">
-              🤝
-            </div>
-
+          <section className="nd-umkm-cta" aria-labelledby="nd-umkm-cta-title">
+            <div className="nd-umkm-cta__symbol" aria-hidden="true">🤝</div>
             <div>
-              <span className="nd-eyebrow">
-                GABUNG EKOSISTEM NUSA-DHIPA
-              </span>
-              <h2 id="nd-umkm-cta-title">
-                Ingin produkmu dikenal lebih luas?
-              </h2>
-              <p>
-                Daftarkan usahamu sebagai mitra NUSA-DHIPA dan jangkau
-                lebih banyak pelanggan serta pelaku bisnis di seluruh
-                Indonesia.
-              </p>
+              <span className="nd-eyebrow">GABUNG EKOSISTEM NUSA-DHIPA</span>
+              <h2 id="nd-umkm-cta-title">Ingin produkmu dikenal lebih luas?</h2>
+              <p>Daftarkan usahamu sebagai mitra NUSA-DHIPA dan jangkau lebih banyak pelanggan serta pelaku bisnis di seluruh Indonesia.</p>
             </div>
-
-            <Link href="/daftar" className="nd-umkm-cta__btn">
-              Daftar Jadi Mitra <span aria-hidden="true">→</span>
-            </Link>
+            <Link href="/daftar" className="nd-umkm-cta__btn">Daftar Jadi Mitra <span aria-hidden="true">→</span></Link>
           </section>
         </Reveal>
 
-        {/* ================= NOTE ================= */}
         <Reveal>
-          <div className="nd-marketplace-note">
-            Informasi mitra usaha diperbarui langsung dari katalog
-            NUSA-DHIPA. Hubungi mitra untuk detail kerja sama.
-          </div>
+          <div className="nd-marketplace-note">Informasi mitra usaha diperbarui langsung dari katalog NUSA-DHIPA. Hubungi mitra untuk detail kerja sama.</div>
         </Reveal>
       </div>
     </main>
