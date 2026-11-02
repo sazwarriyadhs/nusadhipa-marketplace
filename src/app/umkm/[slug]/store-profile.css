@@ -334,3 +334,75 @@
     line-height: 1.2 !important;
   }
 }
+/* --- TENTANG USAHA & SOSMED --- */
+.nd-about-section {
+  margin-top: 24px;
+  background-color: #ffffff;
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.nd-about-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.nd-about-desc {
+  color: #4b5563;
+  line-height: 1.7;
+  white-space: pre-line;
+  font-size: 15px;
+}
+
+.nd-social-wrap {
+  padding-top: 24px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.nd-social-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nd-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nd-social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.nd-social-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+/* Warna khusus untuk masing-masing sosmed */
+.nd-social-btn--ig:hover { color: #e1306c; border-color: #e1306c; background-color: #fdf2f8; }
+.nd-social-btn--fb:hover { color: #1877f2; border-color: #1877f2; background-color: #eff6ff; }

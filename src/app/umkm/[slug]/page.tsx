@@ -42,7 +42,6 @@ function resolveImageUrl(url: string | null | undefined): string | null {
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
-// --- FUNGSI BARU: Membersihkan Link Sosmed/Website ---
 function formatUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   const trimmed = url.trim();
@@ -153,6 +152,15 @@ function IconGlobe(p: React.SVGProps<SVGSVGElement>) {
       <circle cx="12" cy="12" r="10"></circle>
       <line x1="2" y1="12" x2="22" y2="12"></line>
       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+  );
+}
+function IconInstagram(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
     </svg>
   );
 }
@@ -442,51 +450,47 @@ export default async function StoreProfilePage({ params }: PageProps) {
                 )}
                 <FollowButton />
               </div>
-
-              {/* KAMI ADA DI */}
-              {(business?.instagram_url || business?.tiktok_url || business?.facebook_url || business?.website_url) && (
-                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px dashed #e5e7eb' }}>
-                  <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#6b7280', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Kami Ada Di:
-                  </span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                    {business?.instagram_url && (
-                      <a href={formatUrl(business.instagram_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
-                        <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339974/instagram.png" alt="Instagram" width={18} height={18} />
-                        Instagram
-                      </a>
-                    )}
-                    {business?.tiktok_url && (
-                      <a href={formatUrl(business.tiktok_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
-                        <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339973/tiktok.png" alt="TikTok" width={18} height={18} />
-                        TikTok
-                      </a>
-                    )}
-                    {business?.facebook_url && (
-                      <a href={formatUrl(business.facebook_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
-                        <img src="https://res.cloudinary.com/wqytmco9/image/upload/v1793339973/facebook.png" alt="Facebook" width={18} height={18} />
-                        Facebook
-                      </a>
-                    )}
-                    {business?.website_url && (
-                      <a href={formatUrl(business.website_url) || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none', border: '1px solid #d1d5db', color: '#4b5563', backgroundColor: '#fff' }}>
-                        <IconGlobe /> Website
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </section>
 
-        {/* TAMBAHAN BARU: Menampilkan Deskripsi Toko */}
+        {/* SECTION TENTANG USAHA & SOSMED (DIRAPIKAN) */}
         <Reveal delay={30}>
-          <section style={{ marginTop: '24px', backgroundColor: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#111827' }}>Tentang Usaha</h3>
-            <p style={{ color: '#4b5563', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
-              {business?.description || "Toko ini belum menambahkan deskripsi profil usaha."}
-            </p>
+          <section className="nd-about-section">
+            <div className="nd-about-content">
+              <h3 className="nd-about-title">Tentang Usaha</h3>
+              <p className="nd-about-desc">
+                {business?.description || "Toko ini belum menambahkan deskripsi profil usaha."}
+              </p>
+            </div>
+
+            {(business?.instagram_url || business?.tiktok_url || business?.facebook_url || business?.website_url) && (
+              <div className="nd-social-wrap">
+                <span className="nd-social-label">Kami Ada Di:</span>
+                <div className="nd-social-links">
+                  {business?.instagram_url && (
+                    <a href={formatUrl(business.instagram_url) || "#"} target="_blank" rel="noopener noreferrer" className="nd-social-btn nd-social-btn--ig">
+                      <IconInstagram /> Instagram
+                    </a>
+                  )}
+                  {business?.tiktok_url && (
+                    <a href={formatUrl(business.tiktok_url) || "#"} target="_blank" rel="noopener noreferrer" className="nd-social-btn">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg> TikTok
+                    </a>
+                  )}
+                  {business?.facebook_url && (
+                    <a href={formatUrl(business.facebook_url) || "#"} target="_blank" rel="noopener noreferrer" className="nd-social-btn nd-social-btn--fb">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> Facebook
+                    </a>
+                  )}
+                  {business?.website_url && (
+                    <a href={formatUrl(business.website_url) || "#"} target="_blank" rel="noopener noreferrer" className="nd-social-btn">
+                      <IconGlobe /> Website
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         </Reveal>
 
