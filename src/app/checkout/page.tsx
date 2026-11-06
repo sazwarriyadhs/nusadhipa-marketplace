@@ -11,10 +11,9 @@ const FREE_RADIUS_KM = 5;
 const BASE_SHIPPING = 5000;
 const COST_PER_KM = 2000;
 
+// HANYA MENGGUNAKAN KURIR NUSA-DHIPA
 const COURIERS = [
-  { id: "jne", name: "JNE", service: "REG", eta: "2-3 hari" },
-  { id: "jnt", name: "J&T Express", service: "EZ", eta: "2-4 hari" },
-  { id: "sicepat", name: "SiCepat", service: "REG", eta: "1-2 hari" },
+  { id: "nusadhipa", name: "NUSA-DHIPA", service: "Instant/Same Day", eta: "1-2 jam" },
 ];
 
 function rupiah(value: number) {
@@ -39,7 +38,8 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  const [courier, setCourier] = useState("jne");
+  // Default kurir langsung NUSA-DHIPA
+  const [courier, setCourier] = useState("nusadhipa");
   const [distanceKm, setDistanceKm] = useState(5);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
@@ -105,14 +105,11 @@ export default function CheckoutPage() {
       setSuccess(true);
       setMessage(`✅ Pesanan ${json.data.order_number} berhasil dibuat!`);
 
-      // Simpan ke sessionStorage untuk halaman sukses
       try {
         sessionStorage.setItem("last_order", JSON.stringify(json.data));
       } catch {}
 
       clearCart();
-
-      // Redirect ke halaman sukses
       router.push("/checkout/success");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Gagal membuat pesanan";
@@ -237,26 +234,24 @@ export default function CheckoutPage() {
 
           <section className="checkout-section">
             <h2>Pilih Kurir</h2>
-            <div className="checkout-couriers">
-              {COURIERS.map((c) => (
-                <label
-                  key={c.id}
-                  className={`checkout-courier${courier === c.id ? " is-active" : ""}`}
-                >
-                  <input
-                    type="radio"
-                    name="courier"
-                    value={c.id}
-                    checked={courier === c.id}
-                    onChange={() => setCourier(c.id)}
-                  />
-                  <div>
-                    <strong>{c.name}</strong>
-                    <small>{c.service} · {c.eta}</small>
-                  </div>
-                </label>
-              ))}
+            <div className="checkout-couriers" style={{ pointerEvents: 'none' }}>
+              <label className="checkout-courier is-active" style={{ border: '2px solid #b91c2c', background: '#fef2f2', cursor: 'default' }}>
+                <input
+                  type="radio"
+                  name="courier"
+                  value="nusadhipa"
+                  checked={true}
+                  readOnly
+                />
+                <div>
+                  <strong>NUSA-DHIPA</strong>
+                  <small>Instant/Same Day · 1-2 jam</small>
+                </div>
+              </label>
             </div>
+            <p style={{ fontSize: '12px', color: '#64748b', marginTop: '12px', fontWeight: 600 }}>
+              * Pengiriman wajib menggunakan kurir NUSA-DHIPA.
+            </p>
           </section>
 
           <section className="checkout-section">
@@ -315,7 +310,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="checkout-line">
-            <span>Ongkir ({COURIERS.find((c) => c.id === courier)?.name})</span>
+            <span>Ongkir (NUSA-DHIPA)</span>
             <span>
               {shipping === 0 ? (
                 <strong style={{ color: "#16a34a" }}>GRATIS</strong>
@@ -331,8 +326,6 @@ export default function CheckoutPage() {
             <span>Total</span>
             <strong>{rupiah(grandTotal)}</strong>
           </div>
-
-          
 
           {message && (
             <div className={`checkout-message${success ? " is-success" : ""}`}>
