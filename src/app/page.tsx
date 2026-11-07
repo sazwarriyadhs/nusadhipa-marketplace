@@ -415,7 +415,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       getProducts({
         q: query || undefined,
         category: selectedCategory || undefined,
-        limit: 8,
+        limit: 10,
       }),
       // Fetch 100 untuk hitung total (counter statistik)
       getProducts({ limit: 100 }),
@@ -701,7 +701,7 @@ export default async function HomePage({ searchParams }: PageProps) {
               />
             ) : (
               <div className="nd-product-grid">
-                {products.slice(0, 8).map((product, index) => (
+                {products.slice(0, 10).map((product, index) => (
                   <ProductCard
                     key={
                       product.public_id ??

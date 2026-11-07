@@ -276,12 +276,14 @@ export default async function PeluangUsahaPage({ searchParams }: PageProps) {
                 </li>
               </ul>
             </div>
-            <div className="nd-opp-hero__art" aria-hidden="true">
-              <div className="nd-opp-hero__art-card">
-                <span>🚀</span>
-                <strong>Mulai hari ini</strong>
-                <small>Kembangkan usahamu</small>
-              </div>
+            
+            {/* BAGIAN GAMBAR COVER BARU */}
+            <div className="nd-opp-hero__art relative w-full min-h-[300px] md:min-h-[450px] rounded-2xl overflow-hidden shadow-xl mt-8 md:mt-0">
+              <img 
+                src="/images/peluang_usaha.jpg" 
+                alt="Peluang Usaha NUSA-DHIPA" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             </div>
           </section>
         </Reveal>

@@ -120,6 +120,7 @@ function extractApiList<T>(response: unknown): T[] {
   }
   return [];
 }
+
 export default async function B2BPage({ searchParams }: PageProps) {
   await searchParams;
 
@@ -158,12 +159,14 @@ export default async function B2BPage({ searchParams }: PageProps) {
                 <li><span aria-hidden="true">✓</span> Kontrak bisnis</li>
               </ul>
             </div>
-            <div className="nd-opp-hero__art" aria-hidden="true">
-              <div className="nd-opp-hero__art-card">
-                <span>🏭</span>
-                <strong>B2B Marketplace</strong>
-                <small>Solusi usaha Anda</small>
-              </div>
+            
+            {/* GAMBAR COVER B2B */}
+            <div className="nd-opp-hero__art relative w-full min-h-[300px] md:min-h-[450px] rounded-2xl overflow-hidden shadow-xl mt-8 md:mt-0">
+              <img 
+                src="/images/b2b_cover.jpg" 
+                alt="B2B Marketplace NUSA-DHIPA" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
             </div>
           </section>
         </Reveal>

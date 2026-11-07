@@ -6385,3 +6385,931 @@ body {
 .nd-store-product-link { display: inline-flex; align-items: center; justify-content: center; margin-top: 10px; min-height: 38px; padding: 0 14px; border-radius: 9px; background: #dc2626; color: #fff; font-size: 13px; font-weight: 700; text-decoration: none; }
 .nd-store-load-more { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 0; }
 .nd-store-load-more small { color: #6b7280; }
+
+/* ============================================================
+   SEARCH PAGE
+   ============================================================ */
+.nd-search-header { text-align: center; margin: 24px 0 20px; }
+.nd-search-header h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; margin: 0 0 8px; color: #111827; letter-spacing: -0.5px; }
+.nd-search-header p { color: #6b7280; max-width: 640px; margin: 0 auto 18px; line-height: 1.6; }
+.nd-search-header .nd-hero-search { margin: 0 auto; }
+
+.nd-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; font-size: 13px; color: #6b7280; }
+.nd-breadcrumb a { color: #b91c2c; text-decoration: none; }
+.nd-breadcrumb a:hover { text-decoration: underline; }
+.nd-breadcrumb [aria-current="page"] { color: #111827; font-weight: 600; }
+
+.nd-category-chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.nd-category-chips::-webkit-scrollbar { display: none; }
+.nd-chip { flex-shrink: 0; padding: 8px 14px; border-radius: 999px; border: 1px solid #e5e7eb; background: #fff; color: #374151; font-size: 13px; font-weight: 500; text-decoration: none; transition: all .15s; }
+.nd-chip:hover { border-color: #b91c2c; color: #b91c2c; }
+.nd-chip.is-active { background: #b91c2c; border-color: #b91c2c; color: #fff; }
+
+.nd-search-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; padding: 12px 0; border-top: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; }
+.nd-search-toolbar__count { margin: 0; font-size: 14px; color: #6b7280; }
+.nd-search-toolbar__count strong { color: #111827; font-weight: 700; }
+.nd-active-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.nd-filter-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #fef2f2; color: #b91c2c; font-size: 12px; font-weight: 500; text-decoration: none; border: 1px solid #fecaca; }
+.nd-filter-badge:hover { background: #fee2e2; }
+.nd-filter-reset { font-size: 12px; color: #6b7280; text-decoration: underline; margin-left: 4px; }
+.nd-filter-reset:hover { color: #b91c2c; }
+
+.nd-pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 32px 0; flex-wrap: wrap; }
+.nd-page-btn { min-width: 38px; height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #374151; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; }
+.nd-page-btn:hover { border-color: #b91c2c; color: #b91c2c; }
+.nd-page-btn.is-current { background: #b91c2c; border-color: #b91c2c; color: #fff; }
+.nd-page-btn.is-disabled { opacity: .4; pointer-events: none; cursor: not-allowed; }
+.nd-page-gap { padding: 0 6px; color: #9ca3af; align-self: center; }
+
+.nd-skeleton--chips { height: 40px; background: #f3f4f6; border-radius: 999px; margin-bottom: 16px; animation: nd-pulse 1.5s ease-in-out infinite; }
+@keyframes nd-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+.nd-empty-state { text-align: center; padding: 64px 24px; background: #f9fafb; border-radius: 16px; margin: 16px 0; }
+.nd-empty-state > span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+.nd-empty-state h3 { font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 8px; }
+.nd-empty-state p { color: #6b7280; margin: 0 0 20px; }
+.nd-btn { display: inline-block; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all .15s; }
+.nd-btn--primary { background: #b91c2c; color: #fff; }
+.nd-btn--primary:hover { background: #991b24; }
+
+@media (max-width: 640px) {
+  .nd-search-header { margin: 16px 0; }
+  .nd-product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .nd-page-btn { min-width: 34px; height: 34px; font-size: 13px; }
+  .nd-search-toolbar { flex-direction: column; align-items: flex-start; }
+}
+
+/* ============================================================
+   FIX LAYOUT SEARCH PAGE (Mengunci agar rapi & tidak tertutup)
+   ============================================================ */
+.nd-marketplace {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: block;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 40px;
+}
+
+.nd-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Memastikan header search berjarak dari atas */
+.nd-search-header {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  margin: 24px auto 20px;
+  max-width: 800px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Memperbaiki input search agar berada di tengah dan rapi */
+.nd-search-header form,
+.nd-search-header .nd-hero-search {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 4px 4px 4px 16px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.nd-search-header input[type="search"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.nd-search-header button[type="submit"] {
+  background: #b91c2c;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nd-search-header button[type="submit"]:hover {
+  background: #991b24;
+}
+
+/* Memperbaiki jarak grid produk */
+.nd-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Card produk agar bayangannya rapi */
+.nd-product-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nd-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.nd-product-card__link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nd-product-card__media {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #f3f4f6;
+}
+
+.nd-product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nd-product-card__body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nd-product-card__body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nd-product-card__price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #dc2626;
+  margin: 0;
+}
+
+.nd-product-card__seller, .nd-product-card__stock {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.nd-product-card__button {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  color: #b91c2c;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nd-product-card__button:hover {
+  background: #fef2f2;
+}
+
+/* ============================================================
+   FIX LAYOUT SEARCH PAGE & PRODUCT CARD
+   ============================================================ */
+.nd-marketplace {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: block;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 40px;
+}
+
+.nd-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.nd-search-header {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  margin: 24px auto 20px;
+  max-width: 800px;
+  position: relative;
+  z-index: 10;
+}
+
+.nd-search-header form,
+.nd-search-header .nd-hero-search {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 4px 4px 4px 16px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.nd-search-header input[type="search"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.nd-search-header button[type="submit"] {
+  background: #b91c2c;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nd-search-header button[type="submit"]:hover {
+  background: #991b24;
+}
+
+.nd-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.nd-product-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nd-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.nd-product-card__link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nd-product-card__media {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #f3f4f6;
+}
+
+.nd-product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nd-product-card__body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nd-product-card__body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nd-product-card__price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #dc2626;
+  margin: 0;
+}
+
+.nd-product-card__seller, .nd-product-card__stock {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.nd-product-card__button {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  color: #b91c2c;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nd-product-card__button:hover {
+  background: #fef2f2;
+}
+
+/* ============================================================
+   FIX TOMBOL PRODUK: MERAH (DEFAULT) -> HIJAU (HOVER/KLIK)
+   ============================================================ */
+.nd-product-card__button {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background-color: #b91c2c !important; /* MERAH NUSA-DHIPA */
+  color: #ffffff !important; /* Teks Putih */
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px; /* Mengikuti sudut kartu */
+  transition: all 0.2s ease-in-out;
+}
+
+.nd-product-card__button:hover,
+.nd-product-card__button:active {
+  background-color: #16a34a !important; /* HIJAU saat di-klik/hover */
+  color: #ffffff !important;
+}
+
+/* Memastikan teks harga & judul tidak tertimpa style lain */
+.nd-product-card__body h3 {
+  color: #111827 !important;
+}
+.nd-product-card__price {
+  color: #b91c2c !important;
+}
+
+/* ============================================================
+   POLISH & RESPONSIVE FIXES (NUSA-DHIPA)
+   ============================================================ */
+
+/* 1. Hover Effect pada Kartu Produk (Premium Feel) */
+.nd-product-card {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+}
+.nd-product-card:hover {
+  transform: translateY(-6px); /* Kartu terangkat */
+  box-shadow: 0 12px 24px -10px rgba(185, 28, 44, 0.25) !important; /* Bayangan kemerahan */
+  border-color: #fca5a5 !important; /* Border memerah halus */
+}
+.nd-product-card__media img {
+  transition: transform 0.4s ease !important;
+}
+.nd-product-card:hover .nd-product-card__media img {
+  transform: scale(1.05); /* Gambar sedikit membesar */
+}
+
+/* 2. Tombol Utama & Hover */
+.nd-btn, .nd-product-card__button {
+  transition: all 0.2s ease-in-out !important;
+}
+.nd-product-card__button:hover {
+  background-color: #15803d !important; /* Hijau lebih gelap saat di-hover */
+}
+
+/* 3. Memperbaiki Grid Kategori agar selalu rapi di HP & PC */
+.nd-cat-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  gap: 20px !important;
+}
+.nd-cat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  background: #fff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+.nd-cat-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08) !important;
+}
+
+/* 4. Responsive: Penyesuaian Layar HP (Mobile) */
+@media (max-width: 768px) {
+  /* Kurangi padding agar layar HP lebih lega */
+  .nd-content {
+    padding: 0 12px !important;
+  }
+  
+  /* Judul Hero & Section agar tidak terlalu besar di HP */
+  h1, h2, h3 {
+    word-break: break-word !important;
+  }
+  
+  /* Grid Produk jadi 2 kolom di HP */
+  .nd-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  
+  /* Grid Kategori jadi 2 kolom di HP */
+  .nd-cat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  
+  /* Sesuaikan teks di dalam kartu produk agar tidak kepanjangan */
+  .nd-product-card__body h3 {
+    font-size: 13px !important;
+  }
+  .nd-product-card__price {
+    font-size: 14px !important;
+  }
+  
+  /* Sembunyikan tombol "Lihat semua" teks panjang di HP, ganti jadi ikon/panah */
+  .nd-section-link {
+    font-size: 13px !important;
+  }
+}
+
+/* 5. Mempercantik Tampilan Market Insight (Data Pasar) */
+.nd-market-insight {
+  background: #fff !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #f3f4f6 !important;
+  margin-bottom: 32px !important;
+}
+.nd-live-label {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.nd-live-label i {
+  width: 8px !important;
+  height: 8px !important;
+  background-color: #10b981 !important;
+  border-radius: 50% !important;
+  animation: pulse-dot 1.5s infinite !important;
+}
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* 6. Scrollbar Custom untuk Tab Kategori di Insight */
+.nd-insight-slot ::-webkit-scrollbar {
+  height: 6px !important;
+}
+.nd-insight-slot ::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 10px !important;
+}
+.nd-insight-slot ::-webkit-scrollbar-thumb {
+  background: #d1d5db !important;
+  border-radius: 10px !important;
+}
+.nd-insight-slot ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af !important;
+}
+
+/* ============================================================
+   FIX CSS BOCOR UNTUK HALAMAN PROMO / OPP (Peluang, B2B, dll)
+   ============================================================ */
+
+/* 1. HERO SECTION */
+.nd-opp-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  padding: 48px 24px;
+  border-radius: 24px;
+  background: #fff;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .nd-opp-hero {
+    grid-template-columns: 1.2fr 1fr;
+    padding: 64px 48px;
+    align-items: center;
+  }
+}
+
+.nd-opp-hero__content {
+  position: relative;
+  z-index: 10;
+}
+
+.nd-opp-hero__content h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 16px 0;
+  color: #111827;
+}
+
+.nd-opp-hero__content p {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* 2. PILL / LABEL */
+.nd-pill {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* 3. TOMBOL (BUTTONS) */
+.nd-opp-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.nd-opp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nd-opp-btn--primary {
+  background: #b91c2c;
+  color: #fff;
+}
+.nd-opp-btn--primary:hover {
+  background: #991b24;
+}
+
+.nd-opp-btn--ghost {
+  background: transparent;
+  color: #111827;
+  border: 2px solid #e5e7eb;
+}
+.nd-opp-btn--ghost:hover {
+  border-color: #b91c2c;
+  color: #b91c2c;
+}
+
+/* 4. CHECKLIST POINTS */
+.nd-opp-hero__points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.nd-opp-hero__points li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+.nd-opp-hero__points li span {
+  color: #16a34a;
+}
+
+/* 5. SECTION & GRID CARD */
+.nd-opp-section {
+  margin-bottom: 64px;
+}
+
+.nd-section-heading {
+  margin-bottom: 32px;
+}
+.nd-section-heading h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 8px 0;
+}
+.nd-section-heading p {
+  color: #6b7280;
+}
+
+.nd-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #b91c2c;
+  text-transform: uppercase;
+}
+
+.nd-opp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* 6. KARTU (CARD) */
+.nd-opp-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.nd-opp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+  border-color: #e5e7eb;
+}
+
+.nd-opp-card__icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.nd-opp-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.nd-opp-card p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.nd-opp-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+.nd-opp-card__tags li {
+  font-size: 10px;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.nd-opp-card__cta {
+  font-size: 14px;
+  font-weight: 700;
+  color: #b91c2c;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+}
+
+/* 7. WARNA AKSEN KARTU */
+.nd-opp-card--red .nd-opp-card__icon { color: #b91c2c; }
+.nd-opp-card--green .nd-opp-card__icon { color: #16a34a; }
+.nd-opp-card--amber .nd-opp-card__icon { color: #d97706; }
+
+/* 8. STEP LIST (LANGKAH) */
+.nd-step-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+}
+
+.nd-step-card {
+  background: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+}
+
+.nd-step-card__num {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #f3f4f6;
+  line-height: 1;
+  z-index: 0;
+}
+.nd-step-card__icon {
+  font-size: 24px;
+  margin-bottom: 16px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+.nd-step-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.nd-step-card p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+/* 9. FAQ (Frequently Asked Questions) */
+.nd-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .nd-faq-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.nd-faq-item {
+  background: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 16px;
+}
+.nd-faq-item summary {
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nd-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.nd-faq-item summary span {
+  font-size: 1.25rem;
+  color: #b91c2c;
+  font-weight: 700;
+}
+.nd-faq-item[open] summary {
+  margin-bottom: 12px;
+}
+.nd-faq-item p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 10. CTA BAWAH */
+.nd-opp-cta {
+  background: #111827;
+  color: #fff;
+  border-radius: 24px;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+@media (min-width: 900px) {
+  .nd-opp-cta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.nd-opp-cta__symbol {
+  font-size: 48px;
+}
+.nd-opp-cta .nd-eyebrow {
+  color: #fca5a5;
+}
+.nd-opp-cta h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 8px 0;
+}
+.nd-opp-cta p {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: 500px;
+}
+
+.nd-opp-cta__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nd-opp-cta__btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  background: #b91c2c;
+  color: #fff;
+  transition: background 0.2s;
+}
+.nd-opp-cta__btn:hover {
+  background: #991b24;
+}
+.nd-opp-cta__btn--ghost {
+  background: transparent;
+  border: 2px solid #374151;
+}
+.nd-opp-cta__btn--ghost:hover {
+  border-color: #b91c2c;
+}
+
+/* 11. CATATAN BAWAH */
+.nd-marketplace-note {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 24px 0;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 40px;
+}
